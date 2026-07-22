@@ -2,6 +2,19 @@
 
 所有重要变更记录在此文件。格式参考 [Keep a Changelog](https://keepachangelog.com/)，版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [1.1.7] - 2026-07-22
+
+### 修复（Bug）
+- **头部歪头终于稳定生效（这次是真正的根因）**：v1.1.6 黑屏修好了，但头还是不转。
+  - 真正根因（26.1.2 client jar 字节码核实）：`AdultFelineModel.setupAnim` **会主动读写 `head.zRot`**（不只是 xRot/yRot）。之前在 `extractRenderState` 阶段设的 `head.zRot`，随后被 `setupAnim` **覆盖**了——所以无论 `getModel()` 成不成功，头都不转。
+  - 修复：歪头逻辑**搬到 `CatModelMixin`，注入 `AdultFelineModel`+`BabyFelineModel` 的 `setupAnim` 的 TAIL**（TAIL 保证写在我之后、顶点提交之前，zRot 不被覆盖）。用 `this`（`this` 即模型）转型 `Model` 取 `root().getChild("head").zRot`，**不依赖 `@Shadow` 字段**（26.1 mojmap 无 refmap，@Shadow vanilla 字段必崩黑屏）。整段 `try/catch` 兜底。
+  - 新增 `CatRenderStateMixin`：给 `CatRenderState` 加 `@Unique` 字段 `laowuActive`/`laowuRoll`，`extractRenderState`（有 Cat 实体，能取 id/roll）写入，同一 `CatRenderState` 实例流到 `setupAnim` 读取——替代之前不可靠的 `WeakHashMap` 跨 mixin 桥。
+  - `laowu_meme.client.mixins.json` 现注册 `CatRendererMixin` / `CatModelMixin` / `CatRenderStateMixin` 三个。
+- **锁定距离再拉大**：`LOCK_DISTANCE` 1.3 → 1.8（各自离中点 0.9）。用户反馈 1.3 仍偏近、身体重叠；1.8 让两只猫头对头、身体明显分开、不重叠。
+
+### 开发 / 构建
+- 版本号 1.1.6 → 1.1.7。
+
 ## [1.1.6] - 2026-07-22
 
 ### 修复（Bug · 黑屏二次回归，根因彻底查清）

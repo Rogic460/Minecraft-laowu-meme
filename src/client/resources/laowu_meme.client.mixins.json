@@ -3,7 +3,9 @@
 	"package": "com.rogic.client.mixin",
 	"compatibilityLevel": "JAVA_25",
 	"client": [
-		"CatRendererMixin"
+		"CatRendererMixin",
+		"CatModelMixin",
+		"CatRenderStateMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

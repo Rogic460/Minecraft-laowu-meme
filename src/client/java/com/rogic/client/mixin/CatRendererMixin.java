@@ -1,6 +1,7 @@
 package com.rogic.client.mixin;
 
 import com.rogic.client.ClientMemeState;
+import com.rogic.client.render.RenderStateHolder;
 import net.minecraft.client.renderer.entity.CatRenderer;
 import net.minecraft.client.renderer.entity.state.CatRenderState;
 import net.minecraft.world.entity.animal.feline.Cat;

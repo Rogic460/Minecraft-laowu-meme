@@ -2,6 +2,16 @@
 
 所有重要变更记录在此文件。格式参考 [Keep a Changelog](https://keepachangelog.com/)，版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [1.1.2] - 2026-07-22
+
+### 修复（Bug）
+- **崩溃修复 · 进入存档渲染猫时崩溃**：v1.1.1 能启动，但进入单人存档、画面里出现猫时崩溃（`Extracting render state for an entity in world`）。
+  - 根因：`RenderStateHolder`（渲染状态桥，`WeakHashMap`）被放在 mixin 包 `com.rogic.client.mixin` 里。该包在 `laowu_meme.client.mixins.json` 中被声明为 mixin 包，包内的类由 Mixin 处理器接管，**不允许被普通代码直接引用**。`CatRendererMixin` 提取渲染状态时引用 `RenderStateHolder.RollData`，触发 `IllegalClassLoadError: ... is in a defined mixin package ... and cannot be referenced directly`。
+  - 修复：把 `RenderStateHolder`（含内部类 `RollData`）移出 mixin 包，迁到新包 `com.rogic.client.render`；`CatRendererMixin` / `CatModelMixin` 改为 import 新路径。
+
+### 开发 / 构建
+- 版本号 1.1.1 → 1.1.2（崩溃类回归，属补丁级修复）。
+
 ## [1.1.1] - 2026-07-22
 
 ### 修复（Bug）

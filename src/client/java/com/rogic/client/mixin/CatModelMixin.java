@@ -1,5 +1,6 @@
 package com.rogic.client.mixin;
 
+import com.rogic.client.render.RenderStateHolder;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.entity.state.CatRenderState;
 import net.minecraft.client.renderer.entity.state.FelineRenderState;

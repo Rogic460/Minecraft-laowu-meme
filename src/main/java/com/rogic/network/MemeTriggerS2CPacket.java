@@ -11,7 +11,7 @@ import net.minecraft.resources.Identifier;
  * 携带：两只猫的 entity id、选中的音频 id、歪头方向(±1)。
  */
 public record MemeTriggerS2CPacket(int catAId, int catBId, int soundId, int rollSign) implements CustomPacketPayload {
-	public static final Type<MemeTriggerS2CPacket> TYPE = CustomPacketPayload.createType("laowu_meme:trigger");
+	public static final Type<MemeTriggerS2CPacket> TYPE = new CustomPacketPayload.Type<>(Identifier.fromNamespaceAndPath("laowu_meme", "trigger"));
 	public static final StreamCodec<RegistryFriendlyByteBuf, MemeTriggerS2CPacket> CODEC = StreamCodec.composite(
 			ByteBufCodecs.INT, MemeTriggerS2CPacket::catAId,
 			ByteBufCodecs.INT, MemeTriggerS2CPacket::catBId,

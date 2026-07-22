@@ -2,6 +2,20 @@
 
 所有重要变更记录在此文件。格式参考 [Keep a Changelog](https://keepachangelog.com/)，版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [1.1.4] - 2026-07-22
+
+### 修复（Bug）
+- **头部歪头终于生效（核心修复）**：之前"猫变大了但头不转"的根因是歪头逻辑放在 `CatModelMixin`（`setupAnim` 注入）+ `RenderStateHolder`（`WeakHashMap` 跨 mixin 状态桥）。该桥以 `CatRenderState` 实例为 key，在渲染管线的 `extractRenderState` -> `submitModel` -> `setupAnim` 链路中极易命中失败，导致 `head.zRot` 从未被写入。
+  - 新方案：**彻底去掉模型 mixin 与 WeakHashMap 桥**，把歪头直接搬到必定会跑的 `CatRendererMixin`（`extractRenderState` 注入，缩放就是在这里生效的，已证实）。在提取渲染状态时，用 `this.model.root().getChild("head")` 直接拿到头部零件，按 `cat.getId()` 从 `ClientMemeState` 取歪头方向（`rollSign` ±1）写入 `head.zRot = ±45°`；非锁定猫清零，避免上一帧歪头残留。
+  - 实测依据（MC 26.1 字节码核实）：`AdultFelineModel.setupAnim` 只写 `head.xRot/yRot`、**绝不碰 `zRot`**，所以这里写入的 `zRot` 会一路保留到顶点提交；`ModelPart.translateAndRotate` 经 `Quaternionf.rotationZYX(xRot,yRot,zRot)` 应用 `zRot`，故头部 roll 必定可见。
+- **锁定距离再拉大**：`LOCK_DISTANCE` 从 `1.0` 调到 `1.3`（各自离中点 0.65）。用户实测 1.0"比之前好点但还偏近"，1.3 让两只猫头对头、身体明显分开、不重叠，更接近设计稿的"脸贴脸"。
+
+### 架构 / 清理
+- 删除 `CatModelMixin.java` 与 `RenderStateHolder.java`，`laowu_meme.client.mixins.json` 仅保留 `CatRendererMixin`。渲染逻辑收敛到单一入口，不再有跨 mixin 的脆弱状态桥。
+
+### 开发 / 构建
+- 版本号 1.1.3 → 1.1.4。
+
 ## [1.1.3] - 2026-07-22
 
 ### 修复（Bug）

@@ -1,0 +1,33 @@
+{
+	"schemaVersion": 1,
+	"id": "laowu_meme",
+	"version": "${version}",
+	"name": "laowu meme",
+	"description": "老吴猫对头旋转整活 mod：两只猫靠近触发头对头逆时针旋转+随机播放老吴/凄凉BGM，右键打断跑开",
+	"authors": [],
+	"contact": {},
+	"license": "MIT",
+	"icon": "assets/laowu_meme/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.rogic.LaowuMemeMod"
+		],
+		"client": [
+			"com.rogic.client.LaowuMemeClient"
+		]
+	},
+	"mixins": [
+		"laowu_meme.mixins.json",
+		{
+			"config": "laowu_meme.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.19.3",
+		"minecraft": "~26.1.2",
+		"java": ">=25",
+		"fabric-api": ">=0.152.1"
+	}
+}

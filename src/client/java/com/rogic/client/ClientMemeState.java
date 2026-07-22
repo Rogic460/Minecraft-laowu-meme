@@ -11,46 +11,44 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 客户端状态：记录哪些猫在对头效果中，管理音频播放。
+ * 客户端状态：收包驱动。记录哪些猫在对头效果中（携带音频 id 与歪头方向），
+ * 并管理循环音频的播放/停止。渲染 mixin 通过 isActive / getRollSign 读取。
  */
 public class ClientMemeState {
+	public static final int SOUND_LAOWU2 = 0;
+	public static final int SOUND_QILIANG = 1;
+
 	private static final ClientMemeState INSTANCE = new ClientMemeState();
-	private final Map<Integer, PairState> states = new HashMap<>();
-	private final Map<String, MemeSoundInstance> sounds = new HashMap<>();
-
 	public static ClientMemeState get() { return INSTANCE; }
-	private ClientMemeState() {}
 
-	public static class PairState {
+	public static final class ActiveCat {
 		public int partnerId;
-		public float bodyYaw;
 		public int soundId;
+		public int rollSign;
 	}
 
-	public PairState get(int entityId) { return states.get(entityId); }
+	private final Map<Integer, ActiveCat> active = new HashMap<>();
+	private final Map<String, MemeSoundInstance> sounds = new HashMap<>();
 
-	public void onTrigger(int catAId, int catBId, int soundId) {
-		Minecraft mc = Minecraft.getInstance();
-		PairState sa = new PairState();
-		sa.partnerId = catBId; sa.soundId = soundId;
-		PairState sb = new PairState();
-		sb.partnerId = catAId; sb.soundId = soundId;
-		if (mc.level != null) {
-			Entity a = mc.level.getEntity(catAId);
-			Entity b = mc.level.getEntity(catBId);
-			if (a != null && b != null) {
-				sa.bodyYaw = facingYaw(a.position(), b.position());
-				sb.bodyYaw = facingYaw(b.position(), a.position());
-			}
-		}
-		states.put(catAId, sa);
-		states.put(catBId, sb);
+	public boolean isActive(int entityId) { return active.containsKey(entityId); }
+	public int getRollSign(int entityId) {
+		ActiveCat a = active.get(entityId);
+		return a == null ? 0 : a.rollSign;
+	}
+
+	/** 收到服务端 trigger 包：记录两只猫并起音乐 */
+	public void onTrigger(int catAId, int catBId, int soundId, int rollSign) {
+		ActiveCat sa = new ActiveCat(); sa.partnerId = catBId; sa.soundId = soundId; sa.rollSign = rollSign;
+		ActiveCat sb = new ActiveCat(); sb.partnerId = catAId; sb.soundId = soundId; sb.rollSign = rollSign;
+		active.put(catAId, sa);
+		active.put(catBId, sb);
 		startSound(catAId, catBId, soundId);
 	}
 
+	/** 收到服务端 stop 包：清状态 + 停音乐 */
 	public void onStop(int catAId, int catBId) {
-		states.remove(catAId);
-		states.remove(catBId);
+		active.remove(catAId);
+		active.remove(catBId);
 		stopSound(catAId, catBId);
 	}
 
@@ -62,7 +60,7 @@ public class ClientMemeState {
 		Vec3 mid = midOf(catAId, catBId);
 		if (mid == null) return;
 		if (mc.player.distanceToSqr(mid) > 16 * 16) return;
-		SoundEvent evt = soundId == ClientMemeManager.SOUND_LAOWU2 ? ModSounds.LAOWU2 : ModSounds.QILIANG;
+		SoundEvent evt = soundId == SOUND_LAOWU2 ? ModSounds.LAOWU2 : ModSounds.QILIANG;
 		if (evt == null) return;
 		MemeSoundInstance inst = new MemeSoundInstance(evt, catAId, catBId);
 		sounds.put(key(catAId, catBId), inst);
@@ -80,10 +78,5 @@ public class ClientMemeState {
 		Entity ea = mc.level.getEntity(a), eb = mc.level.getEntity(b);
 		if (ea == null || eb == null) return null;
 		return ea.position().add(eb.position()).scale(0.5);
-	}
-
-	private static float facingYaw(Vec3 from, Vec3 to) {
-		double dx = to.x - from.x, dz = to.z - from.z;
-		return (float) Math.toDegrees(Math.atan2(-dx, dz));
 	}
 }

@@ -2,6 +2,17 @@
 
 所有重要变更记录在此文件。格式参考 [Keep a Changelog](https://keepachangelog.com/)，版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [1.1.5] - 2026-07-22
+
+### 修复（Bug · 紧急回归）
+- **修复 v1.1.4 主菜单黑屏（启动后整个画面黑色，但 GUI 有声音）**：这是 1.1.4 引入的致命回归，1.1.3 正常。
+  - 根因（用户日志 `latest.log` 实锤）：`CatRendererMixin` 里 `@Shadow protected AbstractFelineModel<CatRenderState> model;` 的**擦除类型写错**。真实字段在 `LivingEntityRenderer` 中是 `protected M model`（`M extends EntityModel<? super S>`），擦除后是 `net.minecraft.client.model.EntityModel`，并非 `AbstractFelineModel`。Mixin 按"字段名 + 描述符"解析 `@Shadow`，类型对不上就报 `InvalidMixinException: @Shadow field model was not located`，导致 `CatRenderer` 的 Mixin **整体应用失败** → `EntityRenderers` 类初始化抛 `NoClassDefFoundError` → 资源重载异常 → 主菜单/世界渲染全黑（但 GUI 与音效在，所以"点按钮有声音"）。
+  - 修复：把 `@Shadow` 类型改为 `EntityModel<CatRenderState>`（擦除描述符与真实字段一致）。并用 MC 26.1 客户端 jar 字节码核实：`EntityModel extends Model`，`Model.root()` 为 public，`AdultFelineModel extends AbstractFelineModel`，歪头所需的 `root().getChild("head").zRot` 链路完全成立。
+  - 防御加固：头部歪头整段用 `try/catch(Throwable)` 包住，即使个别猫变种模型 API 异常也**绝不让渲染器初始化崩掉**，从源头杜绝再次黑屏。
+
+### 开发 / 构建
+- 版本号 1.1.4 → 1.1.5。
+
 ## [1.1.4] - 2026-07-22
 
 ### 修复（Bug）

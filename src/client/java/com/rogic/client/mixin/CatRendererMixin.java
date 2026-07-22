@@ -1,7 +1,7 @@
 package com.rogic.client.mixin;
 
 import com.rogic.client.ClientMemeState;
-import net.minecraft.client.model.animal.feline.AbstractFelineModel;
+import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.entity.CatRenderer;
 import net.minecraft.client.renderer.entity.state.CatRenderState;
@@ -24,11 +24,15 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  *    所以这里写入的 zRot 会一直保留到顶点提交，头部歪头必定生效。
  *  - ModelPart.translateAndRotate 通过 Quaternionf.rotationZYX(xRot,yRot,zRot) 应用 zRot，
  *    故 head.zRot 直接驱动头部 roll。
- *  - Model.root() 是 public，head 零件名为 "head"，可由 root.getChild("head") 取到。
+ *  - Model.root() 是 public（Model 基类），head 零件名为 "head"，可由 root.getChild("head") 取到。
+ *  - @Shadow 字段必须按字节码擦除类型声明：LivingEntityRenderer 里是 `protected M model`，
+ *    擦除后是 net.minecraft.client.model.EntityModel（不是 AbstractFelineModel），否则 Mixin 报
+ *    "field model was not located" 导致整个 CatRenderer 注入失败、渲染器初始化崩、主菜单黑屏。
  */
 @Mixin(CatRenderer.class)
 public class CatRendererMixin {
-	@Shadow protected AbstractFelineModel<CatRenderState> model;
+	// 注意：擦除类型必须用 EntityModel（基类），不能用 AbstractFelineModel，否则 @Shadow 解析失败。
+	@Shadow protected EntityModel<CatRenderState> model;
 
 	/** 歪头角度：45°（设计稿要求），roll 为 ±1，相乘得镜像歪头 */
 	private static final float HEAD_ROLL = (float) (Math.PI / 4.0);
@@ -46,12 +50,17 @@ public class CatRendererMixin {
 
 		// 头部歪头：直接操作模型 head 零件 zRot（绕 Z 轴 roll）。
 		// 非锁定猫清零，避免上一帧的歪头残留。
-		if (this.model != null) {
-			ModelPart root = this.model.root();
-			ModelPart head = root == null ? null : root.getChild("head");
-			if (head != null) {
-				head.zRot = active ? roll * HEAD_ROLL : 0f;
+		// 整段包 try/catch：万一部分模型 API 在某些猫变种上异常，也绝不让渲染器初始化崩掉（黑屏）。
+		try {
+			if (this.model != null) {
+				ModelPart root = this.model.root();
+				ModelPart head = root == null ? null : root.getChild("head");
+				if (head != null) {
+					head.zRot = active ? roll * HEAD_ROLL : 0f;
+				}
 			}
+		} catch (Throwable t) {
+			// 静默吞掉，保证渲染流程不中断
 		}
 	}
 }

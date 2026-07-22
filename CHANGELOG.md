@@ -2,6 +2,18 @@
 
 所有重要变更记录在此文件。格式参考 [Keep a Changelog](https://keepachangelog.com/)，版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [1.1.6] - 2026-07-22
+
+### 修复（Bug · 黑屏二次回归，根因彻底查清）
+- **v1.1.5 仍黑屏（用户实测），这次根因是 refmap 缺失，不是类型**：日志仍报 `@Shadow field model was not located ... No refMap loaded`。
+  - 真相：MC 26.1 用 mojmap 构建时，Loom **不会生成 refmap**；而运行时游戏类是 **intermediary** 命名。v1.1.3 的 `@Inject extractRenderState` 能跑，只是因为 `extractRenderState` 这个方法名在 intermediary 里被保留了；但字段 `model` 在 intermediary 里是 `field_xxxx`，没有 refmap 翻译，`@Shadow model` 必然解析失败 → mixin apply 崩溃 → 黑屏。所以**只要用 `@Shadow` 去 shadow 一个 vanilla 字段，在 mojmap 构建 + 无 refmap 下就会炸**，无论类型写得多对。
+  - **修复（彻底去 @Shadow）**：不再 shadow 任何字段。改用 `CatRenderer` 继承的公开方法 `LivingEntityRenderer.getModel()` 取模型（`public M getModel()`，擦除为 `EntityModel`），再 `root().getChild("head").zRot`。公开方法名在 intermediary 里同样被保留（与 `extractRenderState` 同机制），可解析。整段 `try/catch(Throwable)` 兜底，任何异常都绝不让渲染器崩。
+  - 已用 javap 核实构建产物：mixin class **不含任何 @Shadow**，字节码为 `LivingEntityRenderer.getModel()→EntityModel.root()→getChild("head")→zRot`。
+
+### 开发 / 构建
+- 版本号 1.1.5 → 1.1.6。
+- 教训已固化进 skill `fabric-261-serverauth-mod`：26.1 mojmap 构建下 **不要 `@Shadow` vanilla 字段**（无 refmap → intermediary 字段名对不上必崩）；用公开方法/getter 或模型类自身 `this` 取部件，并一律 `try/catch`。
+
 ## [1.1.5] - 2026-07-22
 
 ### 修复（Bug · 紧急回归）

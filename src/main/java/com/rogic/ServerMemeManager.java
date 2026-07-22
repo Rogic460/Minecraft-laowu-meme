@@ -16,7 +16,7 @@ import java.util.*;
 /**
  * 服务端权威的猫对头状态机。
  * - 扫描：命名"老吴"的猫 + 6 格内任意猫 → 建配对
- * - APPROACHING：两只猫被禁用 AI，平滑走向贴脸点（≈0.6 中心距）
+ * - APPROACHING：两只猫被禁用 AI，平滑走向贴脸点（≈1.0 中心距，头对头、身体不重叠）
  * - LOCKED：冻结在贴脸点、脸对脸，广播 trigger 包（客户端播放歪头+音乐+放大）
  * - 右键其中一只：解除锁定（恢复 AI + 给一点向外速度自然走开），双方进入 3 分钟冷却
  *
@@ -25,7 +25,7 @@ import java.util.*;
 public final class ServerMemeManager {
 	public static final String LAOWU_NAME = "老吴";
 	public static final double TRIGGER_DISTANCE = 6.0;          // 触发扫描距离
-	public static final double LOCK_DISTANCE = 0.6;             // 锁定时两猫中心距（贴脸）
+	public static final double LOCK_DISTANCE = 1.0;             // 锁定时两猫中心距（头对头、身体不重叠）
 	public static final double SPLIT = LOCK_DISTANCE / 2.0;     // 各自离中点
 	public static final double APPROACH_SPEED = 0.14;           // 每 tick 前进距离（≈走路）
 	public static final long COOLDOWN_TICKS = 3L * 60 * 20;     // 3 分钟

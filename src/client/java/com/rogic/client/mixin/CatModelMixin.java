@@ -19,12 +19,15 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class CatModelMixin {
 	@Shadow protected ModelPart root;
 
+	/** 歪头角度：45°（设计稿要求），d.roll 为 ±1 方向，相乘得镜像歪头 */
+	private static final float HEAD_ROLL = (float) (Math.PI / 4.0);
+
 	@Inject(method = "setupAnim(Lnet/minecraft/client/renderer/entity/state/FelineRenderState;)V", at = @At("TAIL"))
 	private void laowuApplyHeadRoll(FelineRenderState state, CallbackInfo ci) {
 		if (!(state instanceof CatRenderState catState)) return;
 		RenderStateHolder.RollData d = RenderStateHolder.DATA.get(catState);
 		if (d == null || !d.active) return;
 		ModelPart head = this.root.getChild("head");
-		if (head != null) head.zRot = d.roll;
+		if (head != null) head.zRot = d.roll * HEAD_ROLL;
 	}
 }

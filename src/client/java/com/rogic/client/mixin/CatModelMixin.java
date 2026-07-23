@@ -28,11 +28,13 @@ public class CatModelMixin {
 	/** 弓背哈气：头下低（绕 X 轴，正值=头端朝下、低头哈气），叠加在 setupAnim 原动画上 */
 	private static final float HEAD_DIP = 0.3f;
 	/** 弓背哈气：身体仅微弓（绕 X 轴，正值=头低尾高）。猫模型 body 是单一部件、腿不随 body 旋转，
-	 *  角度过大会撕裂腿/头与身体的连接，故收敛到很小值，主要靠 HEAD_DIP + 翘尾表现哈气。 */
-	private static final float BODY_PITCH = 0.1f;
-	/** 弓背哈气：尾巴翘起（tail1 第一段、tail2 第二段更翘，尾尖竖直），叠加在原动画上（尾巴不与腿相连，可放心加大） */
-	private static final float TAIL_LIFT_1 = 0.9f;
-	private static final float TAIL_LIFT_2 = 1.4f;
+	 *  角度过大会撕裂腿/头与身体的连接；v1.1.9 为 0.1 偏弱，v1.1.10 略加到 0.18（用户要求"略微加一点"）。 */
+	private static final float BODY_PITCH = 0.18f;
+	/** 弓背哈气：尾巴翘起。经查证 26.1 猫模型 tail1/tail2 是**平级**挂在 root 下（用 PartDefinition.addOrReplaceChild 构建，非串联子部件），
+	 *  旋转 tail1 时 tail2 不跟随，连接处必产生偏差；故两节用**相同角度**平行翘起，使偏差最小、视觉像一条直尾上翘。
+	 *  v1.1.9 用 0.9/1.4（tail2 过大→尾尖过度弯折、与 tail1 末端明显脱节），本版收敛为 0.6/0.6。 */
+	private static final float TAIL_LIFT_1 = 0.6f;
+	private static final float TAIL_LIFT_2 = 0.6f;
 
 	@Inject(method = "setupAnim(Lnet/minecraft/client/renderer/entity/state/FelineRenderState;)V", at = @At("TAIL"), require = 0)
 	private void laowuTilt(FelineRenderState state, CallbackInfo ci) {

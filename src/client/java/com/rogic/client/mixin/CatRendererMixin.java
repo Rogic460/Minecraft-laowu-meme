@@ -34,7 +34,7 @@ public class CatRendererMixin {
 		float roll = cs.getRollSign(id);
 
 		if (active) {
-			state.scale *= 1.5f;
+			state.scale *= 1.25f;
 		}
 
 		// 把整活状态写入 render state，供模型层 setupAnim(TAIL) 读取设歪头。

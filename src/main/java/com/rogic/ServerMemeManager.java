@@ -25,7 +25,7 @@ import java.util.*;
 public final class ServerMemeManager {
 	public static final String LAOWU_NAME = "老吴";
 	public static final double TRIGGER_DISTANCE = 6.0;          // 触发扫描距离
-	public static final double LOCK_DISTANCE = 1.8;             // 锁定时两猫中心距（头对头、身体明显分开，1.8 比 1.3 更宽更自然，用户反馈 1.3 仍偏近）
+	public static final double LOCK_DISTANCE = 2.0;             // 锁定时两猫中心距（头对头、身体明显分开，2.0 比 1.8 再微远一丢丢，用户要求"再远一点点"）
 	public static final double SPLIT = LOCK_DISTANCE / 2.0;     // 各自离中点
 	public static final double APPROACH_SPEED = 0.14;           // 每 tick 前进距离（≈走路）
 	public static final long COOLDOWN_TICKS = 3L * 60 * 20;     // 3 分钟

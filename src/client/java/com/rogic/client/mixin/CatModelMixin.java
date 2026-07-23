@@ -25,9 +25,12 @@ public class CatModelMixin {
 
 	/** 歪头角度：45°（设计稿要求），roll 为 ±1，相乘得镜像歪头 */
 	private static final float HEAD_ROLL = (float) (Math.PI / 4.0);
-	/** 弓背哈气：身体前倾角度（绕 X 轴，负=头端下、前倾）。叠加在 setupAnim 原动画上 */
-	private static final float BODY_PITCH = 0.35f;
-	/** 弓背哈气：尾巴翘起（tail1 第一段、tail2 第二段更翘，尾尖竖直）。叠加在原动画上 */
+	/** 弓背哈气：头下低（绕 X 轴，正值=头端朝下、低头哈气），叠加在 setupAnim 原动画上 */
+	private static final float HEAD_DIP = 0.3f;
+	/** 弓背哈气：身体仅微弓（绕 X 轴，正值=头低尾高）。猫模型 body 是单一部件、腿不随 body 旋转，
+	 *  角度过大会撕裂腿/头与身体的连接，故收敛到很小值，主要靠 HEAD_DIP + 翘尾表现哈气。 */
+	private static final float BODY_PITCH = 0.1f;
+	/** 弓背哈气：尾巴翘起（tail1 第一段、tail2 第二段更翘，尾尖竖直），叠加在原动画上（尾巴不与腿相连，可放心加大） */
 	private static final float TAIL_LIFT_1 = 0.9f;
 	private static final float TAIL_LIFT_2 = 1.4f;
 
@@ -46,25 +49,28 @@ public class CatModelMixin {
 				return;
 			}
 
-			// 头部歪头（绕 Z 轴 roll，镜像歪头）
+			// 头部：歪头（绕 Z 轴 roll，镜像）+ 下低（绕 X 轴，低头哈气）。头不与腿相连，旋转头不会撕裂肢体。
 			ModelPart head = root.getChild("head");
 			if (head != null) {
 				head.zRot = a.laowuGetRoll() * HEAD_ROLL;
+				head.xRot += HEAD_DIP;
 			}
 
-			// 弓背哈气姿态：身体前倾（头端下）+ 尾巴翘起（尾尖竖直），叠加在 setupAnim 原动画上。
-			// 模型只有单一 body 部件（无中段子部件），故"中段抬高"靠整体前倾近似，配合翘尾呈现哈气猫轮廓。
+			// 弓背哈气姿态：身体仅微弓（头低尾高）+ 尾巴翘起（尾尖竖直），叠加在 setupAnim 原动画上。
+			// 方向：绕 X 轴正值 = 头端下沉、尾端上翘（之前 -= 写成头高尾低，已翻正）。
+			// 模型只有单一 body 部件、腿不随 body 旋转，body 大幅旋转会撕裂腿/头连接，故 BODY_PITCH 收敛到很小，
+			// "哈气感"主要靠 HEAD_DIP（低头）+ 翘尾承担。
 			ModelPart body = root.getChild("body");
 			if (body != null) {
-				body.xRot -= BODY_PITCH;
+				body.xRot += BODY_PITCH;
 			}
 			ModelPart tail1 = root.getChild("tail1");
 			if (tail1 != null) {
-				tail1.xRot -= TAIL_LIFT_1;
+				tail1.xRot += TAIL_LIFT_1;
 			}
 			ModelPart tail2 = root.getChild("tail2");
 			if (tail2 != null) {
-				tail2.xRot -= TAIL_LIFT_2;
+				tail2.xRot += TAIL_LIFT_2;
 			}
 		} catch (Throwable t) {
 			// 静默兜底，绝不崩渲染器

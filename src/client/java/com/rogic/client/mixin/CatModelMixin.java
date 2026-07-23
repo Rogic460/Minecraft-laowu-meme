@@ -35,14 +35,15 @@ public class CatModelMixin {
 	 *  tail2 根部天然落在 tail1 末端初始位置，tail1 不转则末端不动 → 两节严丝合缝衔接。
 	 *  TAIL_LIFT 仅作用于 tail2（尾尖上翘）。 */
 	private static final float TAIL_LIFT = 0.9f;
-	/** 腿形变（yScale）：身体绕其支点(z=-10)旋转 BODY_PITCH 时，腿不跟随、各端产生竖向位移（javap 核实几何）：
-	 *  - 后脚附着点(z=+5)上抬约 15·sin(0.18)≈2.7 单位 → 用 HIND_SCALE>1 把后脚向上拉长（cube 自 foot 向上 6 单位，
-	 *    缩放以 foot 为原点，y∈[0,6]→[0,6*HIND_SCALE]，脚尖贴地、髋端上抬衔接身体）。1.5 → 抬升 3.0（略超 2.7 保衔接）。
-	 *  - 前脚附着点(z=-5)下压约 5·sin(0.18)≈0.9 单位 → 用 FRONT_SCALE<1 把前脚髋端下压（cube 自 foot 向上 10 单位，
-	 *    缩放以 foot 为原点，髋端下移）去贴合下压的身体、消除"穿模"。0.9 → 髋端下移 1.0（略超 0.9 保贴合）。
-	 *  注意：yScale 不被原版 setupAnim 重置、且模型实例被所有猫共享，故非整活时四条腿 yScale 全部复位到 1.0（见下方）。 */
-	private static final float HIND_SCALE = 1.5f;
-	private static final float FRONT_SCALE = 0.9f;
+	/** 腿形变（yScale）：身体绕其支点(z=-10)旋转 BODY_PITCH 时，腿不跟随、前后端竖向错开，且与猫模型原生几何叠加：
+	 *  - 原生猫模型前脚 cube 长 10、后脚 cube 长 6（javap 核实 addBox(-1,0,0,2,10,2) vs addBox(-1,0,1,2,6,2)），
+	 *    即原版前腿就比后腿长约 1.67 倍——这是用户看到"前腿是后腿两倍"的主因（Mojang 模型原貌，非 bug）。
+	 *  - 身体弓起(头低尾高)后前后端错开会进一步放大前/后腿视觉差。为抵消，主动让后腿明显长于前腿：
+	 *    HIND_SCALE 把后脚向上拉长、FRONT_SCALE 把前脚缩短，使整活姿态下前后腿视觉协调、后腿够长。
+	 *    v1.1.13：HIND 1.5→1.9（后腿 6→11.4）、FRONT 0.9→0.6（前腿 10→6），前后比 1.9× 抵消弓身视觉差。
+	 *  yScale 不被原版 setupAnim 重置、且模型实例被所有猫共享，故非整活时四条腿 yScale 全部复位到 1.0（见下方）。 */
+	private static final float HIND_SCALE = 1.9f;
+	private static final float FRONT_SCALE = 0.6f;
 	private static final float LEG_SCALE_DEFAULT = 1.0f;
 
 	@Inject(method = "setupAnim(Lnet/minecraft/client/renderer/entity/state/FelineRenderState;)V", at = @At("TAIL"), require = 0)

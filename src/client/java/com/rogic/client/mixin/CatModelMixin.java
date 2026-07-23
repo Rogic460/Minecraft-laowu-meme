@@ -35,13 +35,15 @@ public class CatModelMixin {
 	 *  tail2 根部天然落在 tail1 末端初始位置，tail1 不转则末端不动 → 两节严丝合缝衔接。
 	 *  TAIL_LIFT 仅作用于 tail2（尾尖上翘）。 */
 	private static final float TAIL_LIFT = 0.9f;
-	/** 后脚拉长：身体弓起（BODY_PITCH）后臀部抬高，后脚（cube 自 foot 支点向上延伸，见 AdultFelineModel
-	 *  addBox(-1,0,1,2,6,2)+PartPose.offset(±1.1,18,5)，javap 核实）原本长度够不到抬高的身体→断裂。
-	 *  用 yScale 拉长（仅 y，脚宽不变）：缩放以支点(foot)为原点，cube y∈[0,6] 放大后 y∈[0,6*HIND_SCALE]，
-	 *  脚尖仍贴地、膝/髋端上抬去衔接身体，不改变脚的位置（不会浮空）。1.3 ≈ +1.8 单位，略超身体抬起量以保衔接。
-	 *  注意：yScale 不被原版 setupAnim 重置、且模型实例被所有猫共享，故非整活时必须复位到 1.0（见下方）。 */
-	private static final float HIND_SCALE = 1.3f;
-	private static final float HIND_SCALE_DEFAULT = 1.0f;
+	/** 腿形变（yScale）：身体绕其支点(z=-10)旋转 BODY_PITCH 时，腿不跟随、各端产生竖向位移（javap 核实几何）：
+	 *  - 后脚附着点(z=+5)上抬约 15·sin(0.18)≈2.7 单位 → 用 HIND_SCALE>1 把后脚向上拉长（cube 自 foot 向上 6 单位，
+	 *    缩放以 foot 为原点，y∈[0,6]→[0,6*HIND_SCALE]，脚尖贴地、髋端上抬衔接身体）。1.5 → 抬升 3.0（略超 2.7 保衔接）。
+	 *  - 前脚附着点(z=-5)下压约 5·sin(0.18)≈0.9 单位 → 用 FRONT_SCALE<1 把前脚髋端下压（cube 自 foot 向上 10 单位，
+	 *    缩放以 foot 为原点，髋端下移）去贴合下压的身体、消除"穿模"。0.9 → 髋端下移 1.0（略超 0.9 保贴合）。
+	 *  注意：yScale 不被原版 setupAnim 重置、且模型实例被所有猫共享，故非整活时四条腿 yScale 全部复位到 1.0（见下方）。 */
+	private static final float HIND_SCALE = 1.5f;
+	private static final float FRONT_SCALE = 0.9f;
+	private static final float LEG_SCALE_DEFAULT = 1.0f;
 
 	@Inject(method = "setupAnim(Lnet/minecraft/client/renderer/entity/state/FelineRenderState;)V", at = @At("TAIL"), require = 0)
 	private void laowuTilt(FelineRenderState state, CallbackInfo ci) {
@@ -55,18 +57,26 @@ public class CatModelMixin {
 				return;
 			}
 
-			// 后脚部件（平级挂 root，javap 核实）。先取到手，下面按是否整活决定拉长或复位。
+			// 四条腿部件（平级挂 root，javap 核实）。先取到手，下面按是否整活决定形变或复位。
 			ModelPart leftHind = root.getChild("left_hind_leg");
 			ModelPart rightHind = root.getChild("right_hind_leg");
+			ModelPart leftFront = root.getChild("left_front_leg");
+			ModelPart rightFront = root.getChild("right_front_leg");
 
 			if (!a.laowuIsActive()) {
-				// 还原：身体弓起/后脚拉长只在整活时生效。yScale 不被原版 setupAnim 重置，
-				// 且模型实例被所有猫共享，不复位会让拉长永久残留（所有猫后脚都变长）。
+				// 还原：腿形变只在整活时生效。yScale 不被原版 setupAnim 重置、
+				// 且模型实例被所有猫共享，不复位会让形变永久残留（所有猫腿都变样）。四条腿全复位。
 				if (leftHind != null) {
-					leftHind.yScale = HIND_SCALE_DEFAULT;
+					leftHind.yScale = LEG_SCALE_DEFAULT;
 				}
 				if (rightHind != null) {
-					rightHind.yScale = HIND_SCALE_DEFAULT;
+					rightHind.yScale = LEG_SCALE_DEFAULT;
+				}
+				if (leftFront != null) {
+					leftFront.yScale = LEG_SCALE_DEFAULT;
+				}
+				if (rightFront != null) {
+					rightFront.yScale = LEG_SCALE_DEFAULT;
 				}
 				return;
 			}
@@ -101,6 +111,15 @@ public class CatModelMixin {
 			}
 			if (rightHind != null) {
 				rightHind.yScale = HIND_SCALE;
+			}
+
+			// 前脚缩短：身体弓起后前段下压，前脚髋端需随之下压去贴合身体、消除"穿模"。
+			// 前脚 cube 自 foot 向上 10 单位，FRONT_SCALE<1 把髋端下压（脚尖仍贴地）。
+			if (leftFront != null) {
+				leftFront.yScale = FRONT_SCALE;
+			}
+			if (rightFront != null) {
+				rightFront.yScale = FRONT_SCALE;
 			}
 		} catch (Throwable t) {
 			// 静默兜底，绝不崩渲染器

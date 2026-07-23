@@ -28,22 +28,26 @@ public class CatModelMixin {
 	/** 弓背哈气：头下低（绕 X 轴，正值=头端朝下、低头哈气），叠加在 setupAnim 原动画上 */
 	private static final float HEAD_DIP = 0.3f;
 	/** 弓背哈气：身体仅微弓（绕 X 轴，正值=头低尾高）。猫模型 body 是单一部件、腿不随 body 旋转，
-	 *  角度过大会撕裂腿/头与身体的连接；v1.1.9 为 0.1 偏弱，v1.1.10 略加到 0.18（用户要求"略微加一点"）。 */
-	private static final float BODY_PITCH = 0.18f;
+	 *  角度过大会撕裂腿/头与身体的连接（v1.1.13 教训：0.18 致后腿插地+前后腿与身体断开）。
+	 *  v1.1.14：0.18 → 0.10，从根源减少 body 髋部连接点位移，断开/插地随之解决；
+	 *  弓身感由 HEAD_DIP(0.3，低头) + TAIL_LIFT(0.9，翘尾) 共同承担。 */
+	private static final float BODY_PITCH = 0.10f;
 	/** 弓背哈气：尾巴翘起。26.1 猫模型 tail1/tail2 **平级**挂 root（javap 核实 addOrReplaceChild 父均为 root），
 	 *  旋转 tail1 时 tail2 不跟随 → 两节必脱节。故 tail1 保持不动（只受原版动画），只翘 tail2：
 	 *  tail2 根部天然落在 tail1 末端初始位置，tail1 不转则末端不动 → 两节严丝合缝衔接。
 	 *  TAIL_LIFT 仅作用于 tail2（尾尖上翘）。 */
 	private static final float TAIL_LIFT = 0.9f;
-	/** 腿形变（yScale）：身体绕其支点(z=-10)旋转 BODY_PITCH 时，腿不跟随、前后端竖向错开，且与猫模型原生几何叠加：
-	 *  - 原生猫模型前脚 cube 长 10、后脚 cube 长 6（javap 核实 addBox(-1,0,0,2,10,2) vs addBox(-1,0,1,2,6,2)），
-	 *    即原版前腿就比后腿长约 1.67 倍——这是用户看到"前腿是后腿两倍"的主因（Mojang 模型原貌，非 bug）。
-	 *  - 身体弓起(头低尾高)后前后端错开会进一步放大前/后腿视觉差。为抵消，主动让后腿明显长于前腿：
-	 *    HIND_SCALE 把后脚向上拉长、FRONT_SCALE 把前脚缩短，使整活姿态下前后腿视觉协调、后腿够长。
-	 *    v1.1.13：HIND 1.5→1.9（后腿 6→11.4）、FRONT 0.9→0.6（前腿 10→6），前后比 1.9× 抵消弓身视觉差。
-	 *  yScale 不被原版 setupAnim 重置、且模型实例被所有猫共享，故非整活时四条腿 yScale 全部复位到 1.0（见下方）。 */
-	private static final float HIND_SCALE = 1.9f;
-	private static final float FRONT_SCALE = 0.6f;
+	/** 腿形变（yScale）：身体弓起时腿不跟随，腿长度补偿身体位移。
+	 *  v1.1.14 关键认知：单靠 yScale 治不了"够不到身体"与"插进地板"的矛盾——
+	 *  body 是单一 cube 部件、腿不随 body 旋转，身体弓得越厉害髋部连接点跑得越远，
+	 *  腿要么短（够不到）、要么长（插地），且 body 下降后腿顶与 body 底出现缝（"断开"）。
+	 *  本版根本修复：把 BODY_PITCH 0.18→0.10 减少弓身幅度，body 髋部位移显著减小，
+	 *  腿断开/插地问题随之消失。腿形变退居次要补偿位（取历史经验中间值）：
+	 *  - HIND_SCALE=1.4：后腿 6→8.4。历史：1.3 脱节 / 1.5 不够 / 1.9 插地 → 居中。
+	 *  - FRONT_SCALE=0.85：前腿 10→8.5。历史：0.6 缩过头不到地 / 0.9 穿模 → 居中。
+	 *  yScale 不被原版 setupAnim 重置、且模型实例被所有猫共享，故非整活时四条腿 yScale 全部复位到 1.0。 */
+	private static final float HIND_SCALE = 1.4f;
+	private static final float FRONT_SCALE = 0.85f;
 	private static final float LEG_SCALE_DEFAULT = 1.0f;
 
 	@Inject(method = "setupAnim(Lnet/minecraft/client/renderer/entity/state/FelineRenderState;)V", at = @At("TAIL"), require = 0)

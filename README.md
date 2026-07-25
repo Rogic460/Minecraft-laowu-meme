@@ -46,7 +46,9 @@ org.gradle.java.home=<你的 JDK 25 路径>
 ```
 ffmpeg -i input.mp3 -c:a libvorbis -q:a 4 -ar 44100 -ac 1 output.ogg
 ```
-
+## 友链
+类似mod:catfight-mod  Minecraft Fabric 1.20.1
+https://github.com/ATLCNND/catfight-mod 
 ## License
 
 MIT

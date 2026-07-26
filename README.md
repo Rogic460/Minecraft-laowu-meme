@@ -35,7 +35,7 @@ org.gradle.java.home=<你的 JDK 25 路径>
 ## 版本
 
 - Minecraft 26.1.2
-- Fabric Loader 0.19.3
+- Fabric Loader 0.19.2
 - Fabric API 0.152.1+26.1.2
 - Java 25 / Gradle 9.5.1 / Loom 1.17-SNAPSHOT
 

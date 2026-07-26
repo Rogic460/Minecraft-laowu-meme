@@ -2,6 +2,15 @@
 
 所有重要变更记录在此文件。格式参考 [Keep a Changelog](https://keepachangelog.com/)，版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [1.1.15] - 2026-07-26
+
+### 兼容 / 适配
+- 降低 Fabric Loader 最低依赖：fabric.mod.json `fabricloader` `>=0.19.3` → `>=0.19.2`，`gradle.properties` `loader_version` 0.19.3 → 0.19.2。mod 现可在 Fabric Loader 0.19.2 上加载（0.19.2→0.19.3 为小版本，无 API 断层，无需改代码）。
+
+### 开发 / 构建
+- 版本号 1.1.14 → 1.1.15。
+- README 依赖说明同步更新为 Fabric Loader 0.19.2。
+
 ## [1.1.14] - 2026-07-23
 
 ### 修复（Bug）

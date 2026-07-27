@@ -3,6 +3,7 @@ package com.rogic.client.sound;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.sounds.AbstractTickableSoundInstance;
 import net.minecraft.client.resources.sounds.Sound;
+import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.client.sounds.WeighedSoundEvents;
 import net.minecraft.resources.Identifier;
@@ -45,6 +46,9 @@ public class ImportedSoundInstance extends AbstractTickableSoundInstance {
 		this.looping = true;
 		this.delay = 0;
 		this.volume = 1.0f;
+		// 关闭 MC 自带衰减，改由下方 getVolume() 手动平滑计算，统一所有音频的 16 格衰退
+		// （磁盘读取的导入音频在 MC 里常不自带头衰减，表现为远离猫骤然消失）
+		this.attenuation = SoundInstance.Attenuation.NONE;
 		updatePos();
 	}
 
@@ -53,6 +57,19 @@ public class ImportedSoundInstance extends AbstractTickableSoundInstance {
 		// 必须填充超类 this.sound 字段（仿默认实现），否则 getVolume() 在 SoundEngine.play 里 NPE
 		this.sound = this.events.getSound(this.random);
 		return this.events;
+	}
+
+	@Override
+	public float getVolume() {
+		// 手动平滑距离衰减：0~16 格线性从 1 降到 0，超过 16 格保持 0（静音但不突然停）
+		// 与 MemeSoundInstance 一致，保证导入音频也有自然衰退
+		Minecraft mc = Minecraft.getInstance();
+		if (mc.player == null) return this.volume;
+		double dist = Math.sqrt(mc.player.distanceToSqr(this.x, this.y, this.z));
+		float f = (float) (1.0 - dist / 16.0);
+		if (f < 0.0f) f = 0.0f;
+		if (f > 1.0f) f = 1.0f;
+		return this.volume * f;
 	}
 
 	@Override

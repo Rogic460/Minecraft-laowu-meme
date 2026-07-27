@@ -25,7 +25,7 @@ org.gradle.java.home=<你的 JDK 25 路径>
 
 ```bash
 ./gradlew build
-# 产物：build/libs/laowu_meme-1.0.0.jar
+# 产物：build/libs/laowu_meme-<版本>+26.1.2.jar（如 laowu_meme-1.2.0+26.1.2.jar）
 ```
 
 ## 部署
@@ -41,11 +41,22 @@ org.gradle.java.home=<你的 JDK 25 路径>
 
 ## 音频
 
+### 内置音频
+
 音频文件（`laowu2.ogg` / `qiliang.ogg`）未包含在仓库中，请自行放入 `src/main/resources/assets/laowu_meme/sounds/`。
 需 Ogg Vorbis 格式（MC 只支持 ogg），可用 ffmpeg 从 mp3 转换：
 ```
 ffmpeg -i input.mp3 -c:a libvorbis -q:a 4 -ar 44100 -ac 1 output.ogg
 ```
+
+### 导入音频（运行时热插拔）
+
+在游戏内打开本 mod 的配置界面（触发整活后按 Escape 或 Mod 菜单进入），点击「打开音频文件夹」会打开 `config/laowu_meme/sounds/`。
+把 `.ogg` 文件放进该文件夹，**重新打开配置界面**即可看到并启用，触发整活时会随内置音频一起随机播放；无需重启游戏，也无需 F3+T 重载。
+
+- **导入音频必须是 `.ogg`（Ogg Vorbis）格式**——Minecraft 只支持 ogg，放 mp3 / wav 等其他格式不会被播放。
+- 如果你手上是 mp3，可用在线网站先转成 ogg，例如 **FreeConvert**（https://www.freeconvert.com/mp3-to-ogg）或其他同类站点（CloudConvert、OnlineConvert 等），转完把下载到的 `.ogg` 丢进上面的文件夹即可。
+- 配置界面里每条音频都可单独启用 / 禁用，禁用状态会记到 `config/laowu_meme/enabled.properties`，下次进游戏仍生效。
 ## 友链
 类似mod:catfight-mod  Minecraft Fabric 1.20.1
 https://github.com/ATLCNND/catfight-mod 

@@ -2,14 +2,24 @@
 
 所有重要变更记录在此文件。格式参考 [Keep a Changelog](https://keepachangelog.com/)，版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [1.1.19] - 2026-07-27
+
+### 修复（Bug）
+- **单人触发即网络协议错误断连（v1.1.18 崩溃）**：导入音频文件名含中文/空格（如 `MP3到OGG转换器- FreeConvert.com.ogg`）被直接塞进 `Identifier` 的 path，而 MC 的 `Identifier` 只允许 `[a-z0-9/._-]`，构造时抛 `IdentifierException`，客户端在渲染线程炸掉、集成服务器判为网络协议错误踢档。改用 `SoundIdCodec` 把真名做 UTF-8 hex 编码（只含 `0-9a-f`，必然合法）写入 `Identifier`，`SoundBufferLibraryMixin` 侧 hex 解码回真名再去磁盘读文件，彻底规避非法字符。
+- **v1.1.18 配置屏文本仍空白**：此前 `TextLabel extends AbstractWidget` 把尺寸设为 1×1，而 `AbstractWidget.extractRenderState` 会按 widget 的 (x,y,w,h) 矩形裁剪，1×1 裁剪框把文字全裁掉（按钮 220×20 故正常）。改为在 `Screen.extractRenderState(GuiGraphicsExtractor,...)` 里直接 `centeredText` 画静态文本（屏幕级 extractor 不受 widget 裁剪框限制），删除 `TextLabel`，配置屏现能正确显示标题/固有音频/导入音频名/总数/提示。
+- **mixin 拦截前缀不一致（v1.1.18 潜伏 bug）**：`ImportedSoundInstance` 生成的 `Identifier` 路径是 `imported/<名>`，但 mixin 只匹配 `sounds/imported/`，导致即使文件名合法也永远拦截不到、导入音频静默不响。已将 mixin 匹配前缀统一为 `imported/`。
+
+### 开发 / 构建
+- 版本号 1.1.18 → 1.1.19。
+
 ## [1.1.18] - 2026-07-27
 
 ### 新增功能
-- **导入音频可播放（Bug 3）**：把 `.ogg` 拖进 `config/laowu_meme/sounds/` 后，触发整活时会与三段固有音频一起被随机播放，**无需 F3+T、不进资源包**。实现：新增 `ImportedSoundInstance`（循环、跟随两只猫中点、过远静音，行为同固有音频）+ `SoundBufferLibraryMixin` 拦截 `laowu_meme:sounds/imported/*` 的资源读取，直接从磁盘用 JOrbis 解码。`AudioPool` 统一维护导入列表与随机池（新增 `refreshImported()` / `importedNames()` / `random()` 合并池）。
+- **导入音频可播放（Bug 3）**：把 `.ogg` 拖进 `config/laowu_meme/sounds/` 后，触发整活时会与三段固有音频一起被随机播放，**无需 F3+T、不进资源包**。实现：新增 `ImportedSoundInstance`（循环、跟随两只猫中点、过远静音，行为同固有音频）+ `SoundBufferLibraryMixin` 拦截 `laowu_meme:imported/*` 的资源读取，直接从磁盘用 JOrbis 解码。`AudioPool` 统一维护导入列表与随机池（新增 `refreshImported()` / `importedNames()` / `random()` 合并池）。
 - 移除未使用的 `fabric-resource-loader-v1` 依赖（导入音频改用 mixin 直读磁盘，无需该模块），保持 mod 轻量。
 
 ### 修复（Bug）
-- **配置屏文本不渲染（v1.1.16/1.1.17 的 Bug1/2）**：文本元素改为继承 `AbstractWidget` 的 `TextLabel`（覆盖 `extractWidgetRenderState` 画字 + 实现 `updateWidgetNarration`），与按钮同一渲染管线；配置屏现能正确列出固有音频与导入音频名。
+- **配置屏文本不渲染（v1.1.16/1.1.17 的 Bug1/2）**：v1.1.18 改用 `TextLabel extends AbstractWidget` 方案，但实测仍空白——该方案因 1×1 裁剪框把字裁掉而无效，真正的修复见 [1.1.19]。
 
 ### 开发 / 构建
 - 版本号 1.1.16 → 1.1.18（整合 v1.1.17 配置屏修复与本次导入音频功能）。

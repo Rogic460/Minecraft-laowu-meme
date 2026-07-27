@@ -17,10 +17,12 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.concurrent.CompletableFuture;
 
+import com.rogic.client.sound.SoundIdCodec;
+
 /**
- * 拦截 laowu_meme:sounds/imported/<名>.ogg 的资源读取，直接从
+ * 拦截 laowu_meme:imported/<hex名> 的资源读取，hex 解码出真实文件名后直接从
  * config/laowu_meme/sounds/<名>.ogg 读取并用 JOrbis 解码，使导入音频无需进资源包即可播放。
- * 仅对 laowu_meme 命名空间 + sounds/imported/ 路径生效，其余声音走原逻辑。
+ * 仅对 laowu_meme 命名空间 + imported/ 路径生效，其余声音走原逻辑。
  * looping 分支完全照搬原版 getStream：用 LoopingAudioStream 包一层，provider 每次从
  * 重置后的流重新建解码器，实现无缝循环。
  */
@@ -31,9 +33,10 @@ public class SoundBufferLibraryMixin {
 	private void laowuInterceptImportedStream(Identifier id, boolean looping, CallbackInfoReturnable<CompletableFuture<AudioStream>> cir) {
 		if (!id.getNamespace().equals("laowu_meme")) return;
 		String path = id.getPath();
-		if (!path.startsWith("sounds/imported/")) return;
-		String name = path.substring("sounds/imported/".length());
-		if (name.endsWith(".ogg")) name = name.substring(0, name.length() - 4);
+		if (!path.startsWith("imported/")) return;
+		String enc = path.substring("imported/".length());
+		if (enc.isEmpty()) return;
+		String name = SoundIdCodec.decode(enc);
 		if (name.isEmpty()) return;
 		File f = new File(Minecraft.getInstance().gameDirectory, "config/laowu_meme/sounds/" + name + ".ogg");
 		if (!f.isFile()) return;

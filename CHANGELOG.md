@@ -2,6 +2,15 @@
 
 所有重要变更记录在此文件。格式参考 [Keep a Changelog](https://keepachangelog.com/)，版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [1.1.20] - 2026-07-27
+
+### 修复（Bug）
+- **单人触发仍网络协议错误断连（v1.1.19 未解决的崩溃）**：根因与文件名无关，而是 `ImportedSoundInstance` 覆盖了 `getSound()` 并声明了遮蔽超类 `sound` 字段的 `private final Sound sound`，导致超类 `AbstractSoundInstance` 的 `protected sound` 字段从未被填充。vanilla 的 `SoundEngine.play` 先调 `getSound()`（子类返回非 null 通过检查）再调 `getVolume()`（读超类 `this.sound`，为 null）直接 NPE。修复：删除遮蔽字段与 `getSound()` 覆盖，在 `resolve()` 内仿默认实现把 `this.sound = events.getSound(random)` 填上。`MemeSoundInstance`（固有音频）走默认 resolve 本就正常。
+- **mixin 拦截前缀纠正（v1.1.19 连带 bug）**：`Sound.getPath()` 会把 location 拼成 `sounds/<path>.ogg`，故导入音频实际 path 是 `sounds/imported/<hex>.ogg`。v1.1.19 把 mixin 前缀改成 `imported/` 反而匹配不上、导入音频走到原逻辑找不到资源。改回 `sounds/imported/` 并在解码前剥掉 `.ogg` 后缀。
+
+### 开发 / 构建
+- 版本号 1.1.19 → 1.1.20。
+
 ## [1.1.19] - 2026-07-27
 
 ### 修复（Bug）

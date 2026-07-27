@@ -33,10 +33,12 @@ public class SoundBufferLibraryMixin {
 	private void laowuInterceptImportedStream(Identifier id, boolean looping, CallbackInfoReturnable<CompletableFuture<AudioStream>> cir) {
 		if (!id.getNamespace().equals("laowu_meme")) return;
 		String path = id.getPath();
-		if (!path.startsWith("imported/")) return;
-		String enc = path.substring("imported/".length());
+		// Sound.getPath() 会拼成 sounds/<location.getPath()>.ogg，故实际前缀是 sounds/imported/
+		if (!path.startsWith("sounds/imported/")) return;
+		String enc = path.substring("sounds/imported/".length());  // 形如 <hex>.ogg
 		if (enc.isEmpty()) return;
-		String name = SoundIdCodec.decode(enc);
+		String hex = enc.endsWith(".ogg") ? enc.substring(0, enc.length() - 4) : enc;
+		String name = SoundIdCodec.decode(hex);
 		if (name.isEmpty()) return;
 		File f = new File(Minecraft.getInstance().gameDirectory, "config/laowu_meme/sounds/" + name + ".ogg");
 		if (!f.isFile()) return;

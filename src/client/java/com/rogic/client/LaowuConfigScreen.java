@@ -34,6 +34,10 @@ public class LaowuConfigScreen extends Screen {
 	protected void init() {
 		int cx = this.width / 2;
 
+		// 打开配置界面时重新扫描磁盘导入文件夹（轻量：不引后台监听线程，
+		// 仅打开 GUI 时扫一遍），确保删除/新增 .ogg 后列表即时反映。
+		AudioPool.refreshImported();
+
 		// 标题
 		StringWidget title = new StringWidget(Component.literal("laowu meme 音频设置").withColor(0xFFFFFF), this.font);
 		title.setX(cx - title.getWidth() / 2);

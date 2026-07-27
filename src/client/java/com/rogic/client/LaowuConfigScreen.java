@@ -71,7 +71,7 @@ public class LaowuConfigScreen extends Screen {
 		if (bottomY < y + 12) bottomY = y + 12;
 		this.addRenderableWidget(Button.builder(Component.literal("打开音频文件夹"), b -> openSoundsFolder())
 				.bounds(cx - 110, bottomY, 220, 20).build());
-		this.addRenderableWidget(Button.builder(Component.literal("返回"), b -> this.minecraft.setScreen(this.parent))
+		this.addRenderableWidget(Button.builder(Component.literal("返回"), b -> this.minecraft.setScreenAndShow(this.parent))
 				.bounds(cx - 110, bottomY + 26, 220, 20).build());
 	}
 
@@ -136,8 +136,8 @@ public class LaowuConfigScreen extends Screen {
 	}
 
 	private void notify(String msg) {
-		if (this.minecraft != null && this.minecraft.getToastManager() != null) {
-			this.minecraft.getToastManager().addToast(
+		if (this.minecraft != null && this.minecraft.gui.toastManager() != null) {
+			this.minecraft.gui.toastManager().addToast(
 					new SystemToast(SystemToast.SystemToastId.PERIODIC_NOTIFICATION,
 							Component.literal("laowu meme"), Component.literal(msg)));
 		}

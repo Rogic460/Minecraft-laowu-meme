@@ -67,11 +67,7 @@ public class ClientMemeState {
 		if (old != null) mc.getSoundManager().stop(old);
 		AudioPool.refreshImported();
 		AudioPool.PlayTarget target = AudioPool.random();
-		if (target == null) {
-			System.out.println("[laowu meme] startSound: 池为空(全禁用?)，不播放");
-			return;
-		}
-		System.out.println("[laowu meme] startSound: 选中=" + (target.isImported() ? "imported:" + target.importedName : "builtin") + " dist²=" + (int) mc.player.distanceToSqr(mid));
+		if (target == null) return;
 		SoundInstance inst;
 		if (target.isImported()) inst = new ImportedSoundInstance(target.importedName, catAId, catBId);
 		else inst = new MemeSoundInstance(target.event, catAId, catBId);

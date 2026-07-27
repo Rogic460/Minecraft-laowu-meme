@@ -2,6 +2,26 @@
 
 所有重要变更记录在此文件。格式参考 [Keep a Changelog](https://keepachangelog.com/)，版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [1.2.0] - 2026-07-27
+
+### 新增功能
+- **导入音频播放**：把 `.ogg` 文件放进 `config/laowu_meme/sounds/`，触发整活时会与三段固有音频一起被随机播放，无需 F3+T、不进资源包。支持中文/空格文件名。
+- **配置屏音频启用/禁用**：ModMenu 配置界面里每条音频（固有 + 导入）都是可点击的 toggle 按钮，点击切换启用/禁用，状态持久化到 `config/laowu_meme/enabled.properties`；禁用项不会被随机播放。
+- **多版本 jar 命名**：构建产物命名为 `laowu_meme-1.2.0+26.1.2.jar`，方便未来适配其他 MC 版本时并列管理。
+
+### 修复（Bug）
+- **导入音频不播放**：之前 mixin 拦截 `SoundBufferLibrary.getStream` 的前缀错误（应为 `sounds/imported/`），导致导入音频走原逻辑找不到资源而静默。已修正前缀并剥 `.ogg` 后缀解码。
+- **导入音频中文/空格文件名崩溃**：`Identifier` 的 path 不允许非 ASCII，直接拼文件名会抛 `IdentifierException` 导致网络协议错误断连。新增 `SoundIdCodec` 对文件名做 UTF-8 hex 编码写入 Identifier，mixin 侧解码回真名读盘。
+- **禁用固有音频不生效**：配置屏 toggle 传给 `AudioPool` 的 builtin key 缺 `builtin:` 前缀，导致禁用状态写错 key；已统一前缀。
+- **配置界面不刷新导入列表**：v1.1.22 重写配置屏时删掉刷新逻辑，删/增 .ogg 后列表不更新；已恢复打开 GUI 时扫描磁盘。
+- **整活却常没声音**：`startSound` 原用 `玩家离猫中点>16格就不播放` 的硬限制，导致稍微站远点就只有画面没声音；已移除硬限制，由 MC 自身衰减控制。
+- **声音距离衰减不自然**：`updatePos()` 原把 volume 硬切成 0/1，导致远离时突然静音；改为不覆盖 volume，由 MC 按 16 格 `attenuationDistance` 做自然衰退，>32 格才停止实例。
+- **自定义 SoundInstance NPE 断连**：`ImportedSoundInstance` 曾覆盖 `getSound()` 并遮蔽超类 `sound` 字段，导致 `SoundEngine.play` 调 `getVolume()` 时 NPE；已按原版 `resolve()` 机制正确填充超类字段。
+
+### 开发 / 构建
+- 版本号 1.1.26 → 1.2.0（功能集完整，进入 minor 版本）。
+- 清理了 v1.1.23 加入的调试日志。
+
 ## [1.1.26] - 2026-07-27
 
 ### 改进

@@ -2,14 +2,24 @@
 
 所有重要变更记录在此文件。格式参考 [Keep a Changelog](https://keepachangelog.com/)，版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [1.1.21] - 2026-07-27
+
+### 修复（Bug）
+- **导入音频静音（v1.1.20 反改前缀导致的回归）**：`SoundEngine.play` 调用 `getStream(location, looping)` 时传入的 `location` 就是 `SoundInstance` 的 `Identifier`（路径 `imported/<hex>`，无 `sounds/` 前缀），`sounds/` 是 vanilla `getStream` 内拼资源路径才加。v1.1.20 把 mixin 匹配前缀错改成 `sounds/imported/` 导致永远匹配不上、导入音频走原逻辑找不到资源而静默。改回 `imported/`（保留 1.1.20 的 NPE 修复），导入音频现在能正常循环播放。
+- **配置屏文本仍空白（v1.1.19 屏幕级直绘实测也不显示）**：放弃 `Screen.extractRenderState` 直绘文本，改为用 `StringWidget`（`AbstractWidget` 子类，与按钮同一渲染管线——按钮能显示即说明该管线可靠）逐行渲染文本；颜色烤进 `Component`（`StringWidget` 无 `setColor`），位置手动 `setX` 居中。删除了 `extractRenderState` 覆盖与 `Line` 内部类。配置屏现能正确显示标题/固有音频/导入音频名/总数/提示。
+- mixin 解码失败时新增日志 + 屏幕 toast 提示「导入音频解码失败：<名>」，避免再次静默无提示。
+
+### 开发 / 构建
+- 版本号 1.1.20 → 1.1.21。
+
 ## [1.1.20] - 2026-07-27
 
 ### 修复（Bug）
 - **单人触发仍网络协议错误断连（v1.1.19 未解决的崩溃）**：根因与文件名无关，而是 `ImportedSoundInstance` 覆盖了 `getSound()` 并声明了遮蔽超类 `sound` 字段的 `private final Sound sound`，导致超类 `AbstractSoundInstance` 的 `protected sound` 字段从未被填充。vanilla 的 `SoundEngine.play` 先调 `getSound()`（子类返回非 null 通过检查）再调 `getVolume()`（读超类 `this.sound`，为 null）直接 NPE。修复：删除遮蔽字段与 `getSound()` 覆盖，在 `resolve()` 内仿默认实现把 `this.sound = events.getSound(random)` 填上。`MemeSoundInstance`（固有音频）走默认 resolve 本就正常。
-- **mixin 拦截前缀纠正（v1.1.19 连带 bug）**：`Sound.getPath()` 会把 location 拼成 `sounds/<path>.ogg`，故导入音频实际 path 是 `sounds/imported/<hex>.ogg`。v1.1.19 把 mixin 前缀改成 `imported/` 反而匹配不上、导入音频走到原逻辑找不到资源。改回 `sounds/imported/` 并在解码前剥掉 `.ogg` 后缀。
+- **mixin 拦截前缀（v1.1.20 此处判断错误，已在 1.1.21 纠正）**：当时误以为 `Sound.getPath()` 会把 location 拼成 `sounds/<path>.ogg`，于是把 mixin 匹配前缀从 `imported/` 改回 `sounds/imported/`。但 `SoundEngine.play` 调用 `getStream(location, looping)` 时传入的 `location` 就是 `SoundInstance` 的 `Identifier`（路径前缀 `imported/`，**没有** `sounds/`），`sounds/` 只是 vanilla `getStream` 内部拼资源路径时才加。`sounds/imported/` 前缀永远匹配不上 → 导入音频静默不响。正确前缀应为 `imported/`（见 1.1.21）。
 
 ### 开发 / 构建
-- 版本号 1.1.19 → 1.1.20。
+- 版本号 1.1.19 → 1.1.20（NPE 修复有效，但 mixin 前缀改错导致导入音频仍静音）。
 
 ## [1.1.19] - 2026-07-27
 

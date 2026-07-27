@@ -60,7 +60,11 @@ public class ClientMemeState {
 		if (mc.player == null || mc.level == null) return;
 		Vec3 mid = midOf(catAId, catBId);
 		if (mid == null) return;
-		if (mc.player.distanceToSqr(mid) > 16 * 16) return;
+		// 不再用 >16 格硬限制：只要猫在配对就起播，音量交给 MC 自身衰减
+		// （导入音频衰减 16 格 / 固有音频默认衰减）。之前 >16 不播放是「整活却没声」的主因。
+		// 同一对猫重复触发时，先停掉旧实例再起新的，避免两实例叠加 / 旧实例泄漏。
+		SoundInstance old = sounds.get(key(catAId, catBId));
+		if (old != null) mc.getSoundManager().stop(old);
 		AudioPool.refreshImported();
 		AudioPool.PlayTarget target = AudioPool.random();
 		if (target == null) return;

@@ -2,7 +2,6 @@ package com.rogic.client;
 
 import com.rogic.client.sound.AudioPool;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.components.toasts.SystemToast;
@@ -14,22 +13,17 @@ import java.awt.Toolkit;
 import java.awt.datatransfer.StringSelection;
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
 /**
  * 轻量配置屏（手写，不依赖 YACL 以符合 mod 轻量定位）。
- * - 显示固有音频（随机池）与显示名
- * - 显示导入音频名（若有）
- * - 显示池内音频总数（固有 + 导入）
- * - 「打开音频文件夹」按钮：调系统文件管理器，把 .ogg 拖进去（触发整活时自动随机播放）
- *
- * 文本用 StringWidget（AbstractWidget 的子类，与按钮同一渲染管线，retained-mode 下可靠渲染；
- * 之前用 Screen.extractRenderState 直绘在 1.1.16/1.1.19 实测不显示，故改走 widget）。
- * 颜色烤进 Component（StringWidget 无 setColor），位置手动 setX 居中。
+ * - 每条音频（固有 + 导入）都是一个可点击的 toggle 按钮：点击翻转「启用/禁用」，
+ *   状态写入 config/laowu_meme/enabled.properties；禁用项不会被随机播放。
+ * - 「打开音频文件夹」按钮：调系统文件管理器打开 config/laowu_meme/sounds/。
+ * - 标题/提示用 StringWidget（AbstractWidget 子类，与按钮同一渲染管线，retained-mode 下可靠）。
+ * - 布局：toggle 按钮逐行居中排布，底部「打开文件夹 / 返回」按钮与列表用留白隔开，不再叠字。
  */
 public class LaowuConfigScreen extends Screen {
 	private final Screen parent;
-	private static final List<String> BUILTIN_NAMES = List.of("[那个那个]", "[老吴凄凉]", "[战吼]");
 
 	public LaowuConfigScreen(Screen parent) {
 		super(Component.literal("laowu meme 设置"));
@@ -40,44 +34,57 @@ public class LaowuConfigScreen extends Screen {
 	protected void init() {
 		int cx = this.width / 2;
 
-		addCentered(Component.literal("laowu meme 设置").withColor(0xFFFFFF), cx, 20);
-		addCentered(Component.literal("固有音频（随机池）：").withColor(0xFFE066), cx, 60);
+		// 标题
+		StringWidget title = new StringWidget(Component.literal("laowu meme 音频设置").withColor(0xFFFFFF), this.font);
+		title.setX(cx - title.getWidth() / 2);
+		title.setY(16);
+		this.addRenderableWidget(title);
 
-		int y = 88;
-		for (String name : BUILTIN_NAMES) {
-			addCentered(Component.literal(name).withColor(0xFFFFFF), cx, y);
-			y += 22;
+		// 提示
+		StringWidget hint = new StringWidget(Component.literal("点击切换启用/禁用；禁用项不会被随机播放").withColor(0xAAAAAA), this.font);
+		hint.setX(cx - hint.getWidth() / 2);
+		hint.setY(38);
+		this.addRenderableWidget(hint);
+
+		// 音频条目：每条一个可点击 toggle 按钮
+		int y = 64;
+		int btnW = Math.min(300, this.width - 40);
+		int btnX = cx - btnW / 2;
+
+		for (String key : AudioPool.builtinKeys()) {
+			String name = AudioPool.BUILTIN_DISPLAY.get(key);
+			addToggle(key, name, btnX, y, btnW);
+			y += 24;
+		}
+		for (String key : AudioPool.importedKeys()) {
+			String name = key.substring("imported:".length());
+			addToggle(key, "[导入] " + name, btnX, y, btnW);
+			y += 24;
 		}
 
-		List<String> imported = listImported();
-		for (String name : imported) {
-			addCentered(Component.literal("[导入] " + name).withColor(0x66CCFF), cx, y);
-			y += 22;
-		}
-
-		int total = BUILTIN_NAMES.size() + imported.size();
-		addCentered(Component.literal("池内音频总数：" + total + "（固有 " + BUILTIN_NAMES.size() + " + 导入 " + imported.size() + "）").withColor(0x99FF99), cx, y + 12);
-		addCentered(Component.literal("把 .ogg 拖进音频文件夹，触发整活时会自动随机播放（无需 F3+T）").withColor(0xAAAAAA), cx, y + 38);
-		addCentered(Component.literal("MC 仅支持 Ogg Vorbis（.ogg）；mp3/wav 需先转换").withColor(0x888888), cx, y + 56);
-
+		// 底部按钮：与列表留白隔开，避免叠字
+		int bottomY = this.height - 56;
+		if (bottomY < y + 12) bottomY = y + 12;
 		this.addRenderableWidget(Button.builder(Component.literal("打开音频文件夹"), b -> openSoundsFolder())
-				.bounds(cx - 110, this.height - 64, 220, 20)
-				.build());
+				.bounds(cx - 110, bottomY, 220, 20).build());
 		this.addRenderableWidget(Button.builder(Component.literal("返回"), b -> this.minecraft.setScreen(this.parent))
-				.bounds(cx - 110, this.height - 38, 220, 20)
-				.build());
+				.bounds(cx - 110, bottomY + 26, 220, 20).build());
 	}
 
-	private void addCentered(Component text, int cx, int y) {
-		StringWidget w = new StringWidget(text, this.font);
-		w.setX(cx - w.getWidth() / 2);
-		w.setY(y);
-		this.addRenderableWidget(w);
+	private void addToggle(String key, String displayName, int x, int y, int w) {
+		boolean enabled = AudioPool.isEnabled(key);
+		Component msg = makeMsg(displayName, enabled);
+		Button btn = Button.builder(msg, b -> {
+			boolean now = AudioPool.toggleEnabled(key);
+			b.setMessage(makeMsg(displayName, now));
+		}).bounds(x, y, w, 20).build();
+		this.addRenderableWidget(btn);
 	}
 
-	private static List<String> listImported() {
-		AudioPool.refreshImported();
-		return AudioPool.importedNames();
+	private static Component makeMsg(String name, boolean enabled) {
+		String prefix = enabled ? "✓ " : "✗ ";
+		int color = enabled ? 0x55FF55 : 0xFF7777;
+		return Component.literal(prefix + name).withColor(color);
 	}
 
 	private void openSoundsFolder() {

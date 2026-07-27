@@ -2,6 +2,14 @@
 
 所有重要变更记录在此文件。格式参考 [Keep a Changelog](https://keepachangelog.com/)，版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [1.1.25] - 2026-07-27
+
+### 修复（Bug）
+- **导入音频仍不播放（v1.1.21 误判前缀导致的长期 bug）**：日志终于暴露真相：`SoundEngine.play` 调用 `getStream` 时传入的 `location` 是 `Sound.getPath()` 的结果 `laowu_meme:sounds/imported/<hex>.ogg`（带 `sounds/` 前缀和 `.ogg` 后缀），而不是我此前错误判断的 `laowu_meme:imported/<hex>`。因此 v1.1.21 把 mixin 匹配前缀改成 `imported/` 后，拦截**永远匹配不上**、导入音频走原逻辑找不到资源而静默。修复：mixin 匹配前缀改回 `sounds/imported/`，并在解码前剥 `.ogg` 后缀。
+
+### 开发 / 构建
+- 版本号 1.1.24 → 1.1.25。
+
 ## [1.1.24] - 2026-07-27
 
 ### 修复（Bug）

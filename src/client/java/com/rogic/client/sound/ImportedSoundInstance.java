@@ -12,7 +12,7 @@ import net.minecraft.world.entity.Entity;
 
 /**
  * 导入音频的循环播放实例：绕过资源系统，直接从磁盘 config/laowu_meme/sounds/<名>.ogg 读取字节流，
- * 由 SoundBufferLibraryMixin 在 getStream 拦截 laowu_meme:sounds/imported/<hex名> 时提供 JOrbis 解码流。
+ * 由 SoundBufferLibraryMixin 在 getStream 拦截 laowu_meme:sounds/imported/<hex名>.ogg 时提供 JOrbis 解码流。
  * 文件名经 SoundIdCodec hex 编码进 Identifier，规避 [a-z0-9/._-] 限制（中文/空格文件名曾导致崩溃）。
  * 行为与 MemeSoundInstance 一致：循环、跟随两只猫中点、过远静音、猫消失即停。
  *
@@ -26,8 +26,8 @@ public class ImportedSoundInstance extends AbstractTickableSoundInstance {
 	private final int catAId, catBId;
 
 	public ImportedSoundInstance(String baseName, int catAId, int catBId) {
-		// 用 LAOWU2 仅作构造载体（AbstractTickableSoundInstance 必须收 SoundEvent）；
-		// 真正播放的声音由下方 disk Sound 提供（path=imported/<hex>，被 mixin 拦截读盘）。
+		// 用 LAOWU2 仅作构造载体；真正播放的声音由下方 disk Sound 提供（location=imported/<hex>，
+		// 经 Sound.getPath() 后变为 sounds/imported/<hex>.ogg，被 mixin 拦截读盘）。
 		super(ModSounds.LAOWU2, SoundSource.NEUTRAL, RandomSource.create());
 		Sound sound = new Sound(
 				Identifier.fromNamespaceAndPath("laowu_meme", "imported/" + SoundIdCodec.encode(baseName)),

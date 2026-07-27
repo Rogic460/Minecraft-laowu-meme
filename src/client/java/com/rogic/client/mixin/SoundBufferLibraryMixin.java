@@ -20,15 +20,14 @@ import java.util.concurrent.CompletableFuture;
 import com.rogic.client.sound.SoundIdCodec;
 
 /**
- * 拦截 laowu_meme:imported/<hex名> 的资源读取，hex 解码出真实文件名后直接从
+ * 拦截 laowu_meme:sounds/imported/<hex名>.ogg 的资源读取，hex 解码出真实文件名后直接从
  * config/laowu_meme/sounds/<名>.ogg 读取并用 JOrbis 解码，使导入音频无需进资源包即可播放。
  *
- * 关键点（v1.1.20 曾在此栽坑）：SoundEngine.play 调用 getStream(location, looping) 时，
- * 传入的 location 就是 SoundInstance 的 Identifier（laowu_meme:imported/<hex>），
- * 路径前缀是 imported/，没有 sounds/。sounds/ 是 vanilla getStream 内部用 Sound.getPath()
- * 拼资源路径时才加的，不会出现在传给 getStream 的 Identifier 上。所以此处必须匹配 imported/。
+ * 关键点（v1.1.25 最终定案）：SoundEngine.play 调用 getStream(location, looping) 时，
+ * 传入的 location 是 Sound.getPath() 的结果，格式为 laowu_meme:sounds/imported/<hex>.ogg
+ *（带 sounds/ 前缀和 .ogg 后缀）。因此 mixin 必须匹配 sounds/imported/。
  *
- * 仅对 laowu_meme 命名空间 + imported/ 路径生效，其余声音走原逻辑。
+ * 仅对 laowu_meme 命名空间 + sounds/imported/ 路径生效，其余声音走原逻辑。
  * looping 分支完全照搬原版 getStream：用 LoopingAudioStream 包一层，provider 每次从
  * 重置后的流重新建解码器，实现无缝循环。
  */
@@ -40,9 +39,10 @@ public class SoundBufferLibraryMixin {
 		if (!id.getNamespace().equals("laowu_meme")) return;
 		String path = id.getPath();
 		System.out.println("[laowu meme] getStream 拦截: id=" + id + " looping=" + looping + " path=" + path);
-		// 传给 getStream 的 Identifier 路径前缀是 imported/（无 sounds/），见类注释
-		if (!path.startsWith("imported/")) return;
-		String enc = path.substring("imported/".length());  // 形如 <hex>.ogg
+		// SoundEngine.play 调用 getStream 时传入的是 Sound.getPath() 结果：
+		// laowu_meme:sounds/imported/<hex>.ogg（带 sounds/ 前缀和 .ogg 后缀）
+		if (!path.startsWith("sounds/imported/")) return;
+		String enc = path.substring("sounds/imported/".length());  // 形如 <hex>.ogg
 		if (enc.isEmpty()) return;
 		String hex = enc.endsWith(".ogg") ? enc.substring(0, enc.length() - 4) : enc;
 		String name = SoundIdCodec.decode(hex);

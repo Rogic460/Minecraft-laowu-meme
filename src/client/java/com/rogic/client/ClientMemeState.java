@@ -1,5 +1,6 @@
 package com.rogic.client;
 
+import com.rogic.client.sound.AudioPool;
 import com.rogic.client.sound.MemeSoundInstance;
 import com.rogic.client.sound.ModSounds;
 import net.minecraft.client.Minecraft;
@@ -60,7 +61,7 @@ public class ClientMemeState {
 		Vec3 mid = midOf(catAId, catBId);
 		if (mid == null) return;
 		if (mc.player.distanceToSqr(mid) > 16 * 16) return;
-		SoundEvent evt = soundId == SOUND_LAOWU2 ? ModSounds.LAOWU2 : ModSounds.QILIANG;
+		SoundEvent evt = AudioPool.randomBuiltin();
 		if (evt == null) return;
 		MemeSoundInstance inst = new MemeSoundInstance(evt, catAId, catBId);
 		sounds.put(key(catAId, catBId), inst);

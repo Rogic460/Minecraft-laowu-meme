@@ -1,6 +1,7 @@
 package com.rogic.client;
 
 import com.rogic.LaowuMemeMod;
+import com.rogic.client.sound.AudioPool;
 import com.rogic.client.sound.ModSounds;
 import com.rogic.network.MemeStopS2CPacket;
 import com.rogic.network.MemeTriggerS2CPacket;
@@ -16,6 +17,7 @@ public class LaowuMemeClient implements ClientModInitializer {
 	public void onInitializeClient() {
 		LaowuMemeMod.LOGGER.info("[laowu meme] 客户端初始化中...");
 		ModSounds.init();
+		AudioPool.init();
 
 		ClientPlayNetworking.registerGlobalReceiver(MemeTriggerS2CPacket.TYPE, (packet, context) ->
 				ClientMemeState.get().onTrigger(packet.catAId(), packet.catBId(), packet.soundId(), packet.rollSign())

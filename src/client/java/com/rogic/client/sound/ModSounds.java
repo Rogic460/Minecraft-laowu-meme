@@ -13,10 +13,12 @@ import net.minecraft.sounds.SoundEvent;
 public class ModSounds {
 	public static SoundEvent LAOWU2;
 	public static SoundEvent QILIANG;
+	public static SoundEvent ZHANHOU;
 
 	public static void init() {
 		LAOWU2 = register("laowu2");
 		QILIANG = register("qiliang");
+		ZHANHOU = register("zhanhou");
 	}
 
 	private static SoundEvent register(String name) {

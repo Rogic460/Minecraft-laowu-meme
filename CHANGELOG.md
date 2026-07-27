@@ -2,6 +2,18 @@
 
 所有重要变更记录在此文件。格式参考 [Keep a Changelog](https://keepachangelog.com/)，版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [1.1.16] - 2026-07-27
+
+### 新增功能
+- **新增固有音频「战吼」**（资源 `assets/laowu_meme/sounds/zhanhou.ogg`，源自 `D:\DL\下载.ogg`）。现共有三段固有音频。
+- **固有音频显示名重命名**：老吴2 → `[那个那个]`，凄凉 → `[老吴凄凉]`，新音频 → `[战吼]`（`AudioPool.BUILTIN_DISPLAY` + `sounds.json` 同步）。
+- **加入 ModMenu 配置屏**（软依赖 `modmenu >=18.0.0`，不引 YACL，手写轻量 Screen）：显示三段固有音频名、池内音频总数（固有+导入）、「打开音频文件夹」按钮（把 .ogg 拖进 `config/laowu_meme/sounds` 后游戏内按 F3+T 重载资源即生效）。无 WatchService 常驻线程，列表在打开界面时扫描，符合轻量定位。
+- **随机播放改为客户端本地池**：触发时客户端从三段固有音频随机挑一段（`AudioPool.randomBuiltin()`），不再依赖服务端 `soundId` 选曲。服务端 S2C 包仍保留 `soundId` 字段以兼容旧版本。
+
+### 开发 / 构建
+- 版本号 1.1.15 → 1.1.16。
+- `fabric.mod.json` 加 `modmenu` entrypoint 与 `recommends.modmenu >=18.0.0`；`build.gradle` 经 Modrinth maven 编译期引入 `maven.modrinth:modmenu:18.0.0`（不打包进 jar，运行时由用户安装 ModMenu）。
+
 ## [1.1.15] - 2026-07-26
 
 ### 兼容 / 适配

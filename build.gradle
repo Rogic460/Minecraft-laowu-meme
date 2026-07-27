@@ -12,6 +12,7 @@ repositories {
 	// Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
 	// See https://docs.gradle.org/current/userguide/declaring_repositories.html
 	// for more information about repositories.
+	maven { url = "https://api.modrinth.com/maven" }
 }
 
 loom {
@@ -32,6 +33,10 @@ dependencies {
 
 	// Fabric API. This is technically optional, but you probably want it anyway.
 	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+
+	// ModMenu（客户端配置界面，软依赖：装了显示"设置"按钮，没装不影响 mod 运行）
+	// 用 implementation：编译期引入、不打包进本 mod jar；运行时由用户安装 ModMenu（fabric.mod.json recommends）
+	implementation "maven.modrinth:modmenu:${project.modmenu_version}"
 }
 
 processResources {

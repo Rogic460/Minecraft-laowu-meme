@@ -5,7 +5,8 @@
 	"client": [
 		"CatRendererMixin",
 		"CatModelMixin",
-		"CatRenderStateMixin"
+		"CatRenderStateMixin",
+		"SoundBufferLibraryMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

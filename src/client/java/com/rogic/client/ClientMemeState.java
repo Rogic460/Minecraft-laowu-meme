@@ -1,10 +1,10 @@
 package com.rogic.client;
 
 import com.rogic.client.sound.AudioPool;
+import com.rogic.client.sound.ImportedSoundInstance;
 import com.rogic.client.sound.MemeSoundInstance;
-import com.rogic.client.sound.ModSounds;
 import net.minecraft.client.Minecraft;
-import net.minecraft.sounds.SoundEvent;
+import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 
@@ -29,7 +29,7 @@ public class ClientMemeState {
 	}
 
 	private final Map<Integer, ActiveCat> active = new HashMap<>();
-	private final Map<String, MemeSoundInstance> sounds = new HashMap<>();
+	private final Map<String, SoundInstance> sounds = new HashMap<>();
 
 	public boolean isActive(int entityId) { return active.containsKey(entityId); }
 	public int getRollSign(int entityId) {
@@ -61,15 +61,18 @@ public class ClientMemeState {
 		Vec3 mid = midOf(catAId, catBId);
 		if (mid == null) return;
 		if (mc.player.distanceToSqr(mid) > 16 * 16) return;
-		SoundEvent evt = AudioPool.randomBuiltin();
-		if (evt == null) return;
-		MemeSoundInstance inst = new MemeSoundInstance(evt, catAId, catBId);
+		AudioPool.refreshImported();
+		AudioPool.PlayTarget target = AudioPool.random();
+		if (target == null) return;
+		SoundInstance inst;
+		if (target.isImported()) inst = new ImportedSoundInstance(target.importedName, catAId, catBId);
+		else inst = new MemeSoundInstance(target.event, catAId, catBId);
 		sounds.put(key(catAId, catBId), inst);
 		mc.getSoundManager().play(inst);
 	}
 
 	private void stopSound(int catAId, int catBId) {
-		MemeSoundInstance inst = sounds.remove(key(catAId, catBId));
+		SoundInstance inst = sounds.remove(key(catAId, catBId));
 		if (inst != null) Minecraft.getInstance().getSoundManager().stop(inst);
 	}
 

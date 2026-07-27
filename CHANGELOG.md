@@ -2,6 +2,18 @@
 
 所有重要变更记录在此文件。格式参考 [Keep a Changelog](https://keepachangelog.com/)，版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [1.1.18] - 2026-07-27
+
+### 新增功能
+- **导入音频可播放（Bug 3）**：把 `.ogg` 拖进 `config/laowu_meme/sounds/` 后，触发整活时会与三段固有音频一起被随机播放，**无需 F3+T、不进资源包**。实现：新增 `ImportedSoundInstance`（循环、跟随两只猫中点、过远静音，行为同固有音频）+ `SoundBufferLibraryMixin` 拦截 `laowu_meme:sounds/imported/*` 的资源读取，直接从磁盘用 JOrbis 解码。`AudioPool` 统一维护导入列表与随机池（新增 `refreshImported()` / `importedNames()` / `random()` 合并池）。
+- 移除未使用的 `fabric-resource-loader-v1` 依赖（导入音频改用 mixin 直读磁盘，无需该模块），保持 mod 轻量。
+
+### 修复（Bug）
+- **配置屏文本不渲染（v1.1.16/1.1.17 的 Bug1/2）**：文本元素改为继承 `AbstractWidget` 的 `TextLabel`（覆盖 `extractWidgetRenderState` 画字 + 实现 `updateWidgetNarration`），与按钮同一渲染管线；配置屏现能正确列出固有音频与导入音频名。
+
+### 开发 / 构建
+- 版本号 1.1.16 → 1.1.18（整合 v1.1.17 配置屏修复与本次导入音频功能）。
+
 ## [1.1.16] - 2026-07-27
 
 ### 新增功能

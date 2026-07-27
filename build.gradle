@@ -37,6 +37,7 @@ dependencies {
 	// ModMenu（客户端配置界面，软依赖：装了显示"设置"按钮，没装不影响 mod 运行）
 	// 用 implementation：编译期引入、不打包进本 mod jar；运行时由用户安装 ModMenu（fabric.mod.json recommends）
 	implementation "maven.modrinth:modmenu:${project.modmenu_version}"
+
 }
 
 processResources {

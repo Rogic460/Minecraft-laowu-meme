@@ -2,6 +2,12 @@
 
 所有重要变更记录在此文件。格式参考 [Keep a Changelog](https://keepachangelog.com/)，版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [1.2.1] - 2026-07-27
+
+### 修复（Bug）
+- **战吼/导入音频远离猫不衰退、骤然消失**：三个固有音频在代码与资源里完全对称，但实测战吼与所有导入音频远离猫时音量不随距离减小、超过某距离突然消失（laowu2/qiliang 偶发正常）。根因是 MC 对「流式(stream) / 磁盘读取」的音频其自带的 distance attenuation 在某些路径不生效。修复方式：关闭实例的 MC 自带衰减（`attenuation=NONE`），改为在 `MemeSoundInstance` / `ImportedSoundInstance` 的 `getVolume()` 里手动按「玩家到两只猫中点」的距离线性计算音量 —— 0~16 格从 1 平滑降到 0，超过 16 格保持静音、32 格停止。所有音频（含战吼、导入）现在行为一致、均为自然衰退。
+- **服务端从不选战吼**：`ServerMemeManager` 的 `soundId` 随机只在 laowu2/qiliang 间取，从不含战吼（zhanhou）；已纳入 `SOUND_ZHANHOU(2)`，三者都可能被服务端选中。（客户端实际播放由各端 `AudioPool.random()` 随机，此修复让服务端元数据与新音频一致。）
+
 ## [1.2.0] - 2026-07-27
 
 ### 新增功能

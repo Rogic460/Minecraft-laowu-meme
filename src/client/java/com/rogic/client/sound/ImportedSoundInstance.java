@@ -46,6 +46,7 @@ public class ImportedSoundInstance extends AbstractTickableSoundInstance {
 		this.delay = 0;
 		this.volume = 1.0f;
 		updatePos();
+		System.out.println("[laowu meme] ImportedSoundInstance 创建: baseName=" + baseName + " hex=" + SoundIdCodec.encode(baseName) + " vol=" + this.volume);
 	}
 
 	@Override

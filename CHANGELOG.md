@@ -2,6 +2,16 @@
 
 所有重要变更记录在此文件。格式参考 [Keep a Changelog](https://keepachangelog.com/)，版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [1.1.23] - 2026-07-27
+
+### 修复（Bug）
+- **禁用固有音频后仍被随机到（BUG1）**：配置屏 toggle 传给 `AudioPool.toggleEnabled` 的 builtin key 缺 `builtin:` 前缀（只传了 `laowu2`），而 `random()` 检查的是 `isEnabled("builtin:laowu2")`，前缀不匹配导致禁用永不生效。修复：builtin 条目传 `"builtin:" + key`。
+- **重启后禁用状态全丢**：`AudioPool.init()` 原把 `EnabledConfig.load()` 的结果写进一个临时 map、没回填 `disabledKeys`（第二次 `toBoolMap()` 基于清空的 disabledKeys 重建，全是 true）。修复：先 `refreshImported()`，再把文件读入独立 map、显式回填 `disabledKeys`。
+- 新增调试日志定位「导入音频无法播放」：`startSound` 打印选中目标+距离、`ImportedSoundInstance` 构造打印创建+音量、mixin `getStream` 打印拦截+路径+成功/失败，便于从 latest.log 精确定位。
+
+### 开发 / 构建
+- 版本号 1.1.22 → 1.1.23。
+
 ## [1.1.22] - 2026-07-27
 
 ### 新增功能

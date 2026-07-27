@@ -53,7 +53,7 @@ public class LaowuConfigScreen extends Screen {
 
 		for (String key : AudioPool.builtinKeys()) {
 			String name = AudioPool.BUILTIN_DISPLAY.get(key);
-			addToggle(key, name, btnX, y, btnW);
+			addToggle("builtin:" + key, name, btnX, y, btnW);
 			y += 24;
 		}
 		for (String key : AudioPool.importedKeys()) {

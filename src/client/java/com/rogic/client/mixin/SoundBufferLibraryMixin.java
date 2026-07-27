@@ -39,6 +39,7 @@ public class SoundBufferLibraryMixin {
 	private void laowuInterceptImportedStream(Identifier id, boolean looping, CallbackInfoReturnable<CompletableFuture<AudioStream>> cir) {
 		if (!id.getNamespace().equals("laowu_meme")) return;
 		String path = id.getPath();
+		System.out.println("[laowu meme] getStream 拦截: id=" + id + " looping=" + looping + " path=" + path);
 		// 传给 getStream 的 Identifier 路径前缀是 imported/（无 sounds/），见类注释
 		if (!path.startsWith("imported/")) return;
 		String enc = path.substring("imported/".length());  // 形如 <hex>.ogg
@@ -58,6 +59,7 @@ public class SoundBufferLibraryMixin {
 				stream = (AudioStream) (Object) new JOrbisAudioStream(in);
 			}
 			cir.setReturnValue(CompletableFuture.completedFuture(stream));
+			System.out.println("[laowu meme] 导入音频流创建成功：" + name + " looping=" + looping);
 		} catch (IOException | RuntimeException e) {
 			// 读取/解码失败：放行给原逻辑（按缺失资源处理），不崩溃；给玩家提示便于排查
 			System.out.println("[laowu meme] 导入音频解码失败（已忽略）：" + name + " —— " + e);

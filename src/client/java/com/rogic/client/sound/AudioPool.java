@@ -43,12 +43,13 @@ public class AudioPool {
 
 	public static void init() {
 		disabledKeys.clear();
-		EnabledConfig.load(toBoolMap());
-		// 把文件里 disabled 的 key 同步到内存 set
-		for (var e : toBoolMap().entrySet()) {
+		refreshImported();  // 先扫磁盘，确保 toBoolMap 能覆盖所有已知 key
+		// 从磁盘读回禁用状态：load 只 put 文件里有的 key（即上次禁用的）
+		Map<String, Boolean> loaded = new LinkedHashMap<>();
+		EnabledConfig.load(loaded);
+		for (var e : loaded.entrySet()) {
 			if (Boolean.FALSE.equals(e.getValue())) disabledKeys.add(e.getKey());
 		}
-		refreshImported();
 	}
 
 	/** 重新扫描 config/laowu_meme/sounds/*.ogg（去掉 .ogg 后缀作为显示/匹配名），排序后存入 IMPORTED */

@@ -31,6 +31,7 @@ public final class ServerMemeManager {
 	public static final long COOLDOWN_TICKS = 3L * 60 * 20;     // 3 分钟
 	public static final int SOUND_LAOWU2 = 0;
 	public static final int SOUND_QILIANG = 1;
+	public static final int SOUND_ZHANHOU = 2;
 	public static final float ROLL_ANGLE = 0.5f;               // 歪头角度（弧度，≈28°）
 
 	private static final List<MemePair> activePairs = new ArrayList<>();
@@ -100,7 +101,7 @@ public final class ServerMemeManager {
 
 	private static void startPair(Cat a, Cat b) {
 		int rollSign = a.getRandom().nextBoolean() ? 1 : -1;
-		int soundId = a.getRandom().nextBoolean() ? SOUND_LAOWU2 : SOUND_QILIANG;
+		int soundId = a.getRandom().nextInt(3); // 0=laowu2, 1=qiliang, 2=zhanhou，三者都可能被服务端选中
 		activePairs.add(new MemePair(a, b, rollSign, soundId));
 		LaowuMemeMod.LOGGER.info("[laowu meme] 配对锁定：{} <-> {}", a.getUUID(), b.getUUID());
 	}

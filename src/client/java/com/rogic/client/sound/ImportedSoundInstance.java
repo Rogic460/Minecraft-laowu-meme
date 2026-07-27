@@ -72,10 +72,10 @@ public class ImportedSoundInstance extends AbstractTickableSoundInstance {
 		this.x = (a.getX() + b.getX()) / 2.0;
 		this.y = (a.getY() + b.getY()) / 2.0;
 		this.z = (a.getZ() + b.getZ()) / 2.0;
+		// 不手动覆盖 this.volume：交给 MC 的 attenuationDistance(=16) 做自然距离衰退。
+		// 玩家离中点超过 32 格时直接停止，避免极远距离仍占声音通道。
 		if (mc.player != null && mc.player.distanceToSqr(this.x, this.y, this.z) > 32 * 32) {
-			this.volume = 0.0f;
-		} else {
-			this.volume = 1.0f;
+			return false;
 		}
 		return true;
 	}

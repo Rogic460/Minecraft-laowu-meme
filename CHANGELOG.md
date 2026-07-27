@@ -2,6 +2,14 @@
 
 所有重要变更记录在此文件。格式参考 [Keep a Changelog](https://keepachangelog.com/)，版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [1.1.26] - 2026-07-27
+
+### 改进
+- **声音随距离自然衰退**：原先 `ImportedSoundInstance` / `MemeSoundInstance` 的 `updatePos()` 把音量硬切成 0 或 1（≤32 格 volume=1.0，>32 格 volume=0），覆盖了 MC 自身的距离衰减曲线，导致远离时声音突然消失。改为不再手动覆盖 `this.volume`，由 MC 按 `attenuationDistance`（导入 16 / 固有默认 16）做自然衰退；仅在玩家离猫中点 >32 格时才停止实例。靠近大声、远离慢慢变小声、过远停掉。
+
+### 开发 / 构建
+- 版本号 1.1.25 → 1.1.26。
+
 ## [1.1.25] - 2026-07-27
 
 ### 修复（Bug）

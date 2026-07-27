@@ -8,7 +8,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 
 /**
- * 循环播放的音频实例：跟随两只猫的中点位置，超出 32 格静音。
+ * 循环播放的音频实例：跟随两只猫的中点位置，由 MC 自身 attenuation 做自然距离衰退。
  * 由 ClientMemeState 创建/停止。
  */
 public class MemeSoundInstance extends AbstractTickableSoundInstance {
@@ -31,7 +31,7 @@ public class MemeSoundInstance extends AbstractTickableSoundInstance {
 		}
 	}
 
-	/** 更新到两只猫中点；返回 false 表示猫已不存在 */
+	/** 更新到两只猫中点；返回 false 表示猫已不存在或玩家过远（>32格）应停止 */
 	private boolean updatePos() {
 		Minecraft mc = Minecraft.getInstance();
 		if (mc.level == null) return false;
@@ -41,10 +41,10 @@ public class MemeSoundInstance extends AbstractTickableSoundInstance {
 		this.x = (a.getX() + b.getX()) / 2.0;
 		this.y = (a.getY() + b.getY()) / 2.0;
 		this.z = (a.getZ() + b.getZ()) / 2.0;
+		// 不手动覆盖 this.volume：交给 MC 的默认 attenuationDistance 做自然距离衰退。
+		// 玩家离中点超过 32 格时直接停止，避免极远距离仍占声音通道。
 		if (mc.player != null && mc.player.distanceToSqr(this.x, this.y, this.z) > 32 * 32) {
-			this.volume = 0.0f;
-		} else {
-			this.volume = 1.0f;
+			return false;
 		}
 		return true;
 	}

@@ -3,7 +3,7 @@ package com.rogic.client.sound;
 import com.rogic.LaowuMemeMod;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 
 /**
@@ -22,7 +22,7 @@ public class ModSounds {
 	}
 
 	private static SoundEvent register(String name) {
-		Identifier id = Identifier.fromNamespaceAndPath(LaowuMemeMod.MOD_ID, name);
+		ResourceLocation id = ResourceLocation.fromNamespaceAndPath(LaowuMemeMod.MOD_ID, name);
 		return Registry.register(BuiltInRegistries.SOUND_EVENT, id, SoundEvent.createVariableRangeEvent(id));
 	}
 }

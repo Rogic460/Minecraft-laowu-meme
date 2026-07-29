@@ -6,7 +6,9 @@ buildscript {
 	}
 	dependencies {
 		// 1.12/1.13 系没有 gradle plugin marker，必须用旧式 buildscript classpath 加载。
-		// 必须 ≥1.13.3：fabric-api 0.141.4 由 loom 1.13.3 构建，低版本 loom 拒绝 remap（"Mod was built with a newer version of Loom"）。
+		// 本分支用 1.13.6（与 26.x / 1.21.11 同款），原因：
+		//  - loom 1.13.6 支持 MC 1.21（"Failed to find minecraft version: 1.21.0" 是版本 id 写错——MC 没有 1.21.0，初版 id 是 "1.21"，见 gradle.properties）。
+		//  - loom 1.12.4 内置 tiny-remapper 在 JDK 25 上关闭 zip FileSystem 死锁（remap sources 卡死 18min）；1.13.6 的 tiny-remapper 无此问题（1.21.11 已验证）。
 		classpath "net.fabricmc:fabric-loom:1.13.6"
 	}
 }
@@ -23,6 +25,8 @@ repositories {
 	mavenCentral()
 	maven { url = "https://maven.fabricmc.net" }
 	maven { url = "https://api.modrinth.com/maven" }
+	// ModMenu 旧版（如 11.0.0 对应 1.21.0）仅在 TerraformersMC maven，modrinth maven 只镜像 17.0.0+
+	maven { url = "https://maven.terraformersmc.com/" }
 }
 
 loom {
@@ -49,8 +53,8 @@ dependencies {
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 
-	// ModMenu（客户端配置界面，软依赖）
-	modImplementation "maven.modrinth:modmenu:${project.modmenu_version}"
+	// ModMenu（客户端配置界面，软依赖）。1.21.0 用 TerraformersMC maven 的 11.0.0（modrinth maven 只镜像 17.0.0+）
+	modImplementation "com.terraformersmc:modmenu:${project.modmenu_version}"
 
 }
 
@@ -88,10 +92,11 @@ jar {
 	}
 }
 
-// jar 文件名包含 MC 版本，便于多版本并存：laowu_meme-1.3.0+1.21.11.jar
-// loom 1.13 的最终产物是 remapJar（jar 任务只出中间 dev jar），自定义名必须设在 remapJar 上。
+// jar 文件名包含 MC 版本标签，便于多版本并存：laowu_meme-1.2.1+1.21.0.jar
+// 注意：真实 MC 版本 id 是 "1.21"（无 .0），但这里用人类可读标签 "+1.21.0" 对应 1.21/1.21.1 两版。
+// loom 1.12 的最终产物是 remapJar（jar 任务只出中间 dev jar），自定义名必须设在 remapJar 上。
 tasks.named("remapJar") {
-	archiveFileName = "${project.name}-${project.version}+${project.minecraft_version}.jar"
+	archiveFileName = "${project.name}-${project.version}+1.21.0.jar"
 }
 
 // configure the maven publication

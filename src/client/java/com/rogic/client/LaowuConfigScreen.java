@@ -136,8 +136,8 @@ public class LaowuConfigScreen extends Screen {
 	}
 
 	private void notify(String msg) {
-		if (this.minecraft != null && this.minecraft.getToastManager() != null) {
-			this.minecraft.getToastManager().addToast(
+		if (this.minecraft != null && this.minecraft.getToasts() != null) {
+			this.minecraft.getToasts().addToast(
 					new SystemToast(SystemToast.SystemToastId.PERIODIC_NOTIFICATION,
 							Component.literal("laowu meme"), Component.literal(msg)));
 		}

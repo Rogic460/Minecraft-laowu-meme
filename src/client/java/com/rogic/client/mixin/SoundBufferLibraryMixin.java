@@ -5,7 +5,7 @@ import net.minecraft.client.sounds.AudioStream;
 import net.minecraft.client.sounds.JOrbisAudioStream;
 import net.minecraft.client.sounds.LoopingAudioStream;
 import net.minecraft.client.sounds.SoundBufferLibrary;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -33,9 +33,9 @@ import com.rogic.client.sound.SoundIdCodec;
  */
 @Mixin(SoundBufferLibrary.class)
 public class SoundBufferLibraryMixin {
-	@Inject(method = "getStream(Lnet/minecraft/resources/Identifier;Z)Ljava/util/concurrent/CompletableFuture;",
+	@Inject(method = "getStream(Lnet/minecraft/resources/ResourceLocation;Z)Ljava/util/concurrent/CompletableFuture;",
 			at = @At("HEAD"), cancellable = true)
-	private void laowuInterceptImportedStream(Identifier id, boolean looping, CallbackInfoReturnable<CompletableFuture<AudioStream>> cir) {
+	private void laowuInterceptImportedStream(ResourceLocation id, boolean looping, CallbackInfoReturnable<CompletableFuture<AudioStream>> cir) {
 		if (!id.getNamespace().equals("laowu_meme")) return;
 		String path = id.getPath();
 		// SoundEngine.play 调用 getStream 时传入的是 Sound.getPath() 结果：
@@ -61,7 +61,7 @@ public class SoundBufferLibraryMixin {
 		} catch (IOException | RuntimeException e) {
 			// 读取/解码失败：放行给原逻辑（按缺失资源处理），不崩溃；给玩家提示便于排查
 			System.out.println("[laowu meme] 导入音频解码失败（已忽略）：" + name + " —— " + e);
-			Minecraft.getInstance().getToastManager().addToast(
+			Minecraft.getInstance().getToasts().addToast(
 					new net.minecraft.client.gui.components.toasts.SystemToast(
 							net.minecraft.client.gui.components.toasts.SystemToast.SystemToastId.PERIODIC_NOTIFICATION,
 							net.minecraft.network.chat.Component.literal("laowu meme"),

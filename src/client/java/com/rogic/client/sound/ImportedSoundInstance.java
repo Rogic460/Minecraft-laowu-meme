@@ -6,7 +6,7 @@ import net.minecraft.client.resources.sounds.Sound;
 import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.client.sounds.WeighedSoundEvents;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
@@ -31,7 +31,7 @@ public class ImportedSoundInstance extends AbstractTickableSoundInstance {
 		// 经 Sound.getPath() 后变为 sounds/imported/<hex>.ogg，被 mixin 拦截读盘）。
 		super(ModSounds.LAOWU2, SoundSource.NEUTRAL, RandomSource.create());
 		Sound sound = new Sound(
-				Identifier.fromNamespaceAndPath("laowu_meme", "imported/" + SoundIdCodec.encode(baseName)),
+				ResourceLocation.fromNamespaceAndPath("laowu_meme", "imported/" + SoundIdCodec.encode(baseName)),
 				(RandomSource r) -> 1.0f,   // volume
 				(RandomSource r) -> 1.0f,   // pitch
 				1,
@@ -39,7 +39,7 @@ public class ImportedSoundInstance extends AbstractTickableSoundInstance {
 				true,   // stream：走 SoundBufferLibrary.getStream（被 mixin 拦截）
 				false,  // preload
 				16);    // 衰减距离
-		this.events = new WeighedSoundEvents(getIdentifier(), null);
+		this.events = new WeighedSoundEvents(sound.getLocation(), null);
 		this.events.addSound(sound);
 		this.catAId = catAId;
 		this.catBId = catBId;

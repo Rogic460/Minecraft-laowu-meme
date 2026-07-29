@@ -1,46 +1,37 @@
 package com.rogic.client.mixin;
 
 import com.rogic.client.ClientMemeState;
-import com.rogic.client.render.LaowuStateAccess;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.CatRenderer;
-import net.minecraft.client.renderer.entity.state.CatRenderState;
-import net.minecraft.world.entity.animal.feline.Cat;
+import net.minecraft.world.entity.animal.Cat;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * 在 CatRenderer 提取渲染状态时：
- *  1) 对锁定猫把 scale 放大 50%（仅渲染，不改碰撞箱）；
- *  2) 把"是否锁定 + 歪头方向"写入 CatRenderState（经 LaowuStateAccess），
- *     供 CatModelMixin 在 setupAnim(TAIL) 读取并设 head.zRot。
+ * 经典管线（1.21.0/1.21.1）：无 extractRenderState / CatRenderState，放大改在 render() 用 PoseStack.scale。
+ * 状态按 cat.getId() 从 ClientMemeState 读（与 1.21.11 同一数据源，服务端仍发同样的包）。
  *
- * 关键事实（MC 26.1 实测，字节码核实）：
- *  - AdultFelineModel.setupAnim 会主动读写 head.zRot（不只是 xRot/yRot），
- *    所以**必须在 setupAnim 的 TAIL 设 zRot**，extractRenderState 阶段设会被覆盖。
- *  - 因此歪头逻辑搬到 CatModelMixin.setupAnim(TAIL)，本 mixin 只负责放大 + 写入状态。
- *  - 用 CatRenderState 上的 @Unique 字段传递，同一实例从 extractRenderState 流到 setupAnim，
- *    可靠、无需 @Shadow（26.1 mojmap 无 refmap，@Shadow vanilla 字段必崩黑屏）。
+ * 在 render 的 HEAD 推入一个放大 1.25x 的 PoseStack、TAIL 弹出，整个渲染（模型+阴影）随之放大，
+ * 仅渲染不改碰撞箱。try/catch 兜底防黑屏。
  */
 @Mixin(CatRenderer.class)
 public class CatRendererMixin {
 
-	@Inject(method = "extractRenderState(Lnet/minecraft/world/entity/animal/feline/Cat;Lnet/minecraft/client/renderer/entity/state/CatRenderState;F)V", at = @At("TAIL"))
-	private void laowuPopulate(Cat cat, CatRenderState state, float partialTick, CallbackInfo ci) {
-		ClientMemeState cs = ClientMemeState.get();
-		int id = cat.getId();
-		boolean active = cs.isActive(id);
-		float roll = cs.getRollSign(id);
-
-		if (active) {
-			state.scale *= 1.25f;
+	@Inject(method = "render(Lnet/minecraft/world/entity/animal/Cat;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V", at = @At("HEAD"))
+	private void laowuScalePush(Cat cat, float f, float g, PoseStack poseStack, MultiBufferSource buffer, int packedLight, CallbackInfo ci) {
+		if (ClientMemeState.get().isActive(cat.getId())) {
+			poseStack.pushPose();
+			poseStack.scale(1.25f, 1.25f, 1.25f);
 		}
+	}
 
-		// 把整活状态写入 render state，供模型层 setupAnim(TAIL) 读取设歪头。
-		// CatRenderState 经 CatRenderStateMixin 实现 LaowuStateAccess。
-		LaowuStateAccess a = (LaowuStateAccess) state;
-		a.laowuSetActive(active);
-		a.laowuSetRoll(roll);
+	@Inject(method = "render(Lnet/minecraft/world/entity/animal/Cat;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V", at = @At("TAIL"))
+	private void laowuScalePop(Cat cat, float f, float g, PoseStack poseStack, MultiBufferSource buffer, int packedLight, CallbackInfo ci) {
+		if (ClientMemeState.get().isActive(cat.getId())) {
+			poseStack.popPose();
+		}
 	}
 }

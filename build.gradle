@@ -1,17 +1,27 @@
-plugins {
-	id 'net.fabricmc.fabric-loom' version "${loom_version}"
-	id 'maven-publish'
+buildscript {
+	repositories {
+		// loom 1.12.x 的传递依赖（guava / cadixdev at / lorenz 等）在 Maven Central，fabricmc maven 没有
+		mavenCentral()
+		maven { url = "https://maven.fabricmc.net" }
+	}
+	dependencies {
+		// 1.12/1.13 系没有 gradle plugin marker，必须用旧式 buildscript classpath 加载。
+		// 必须 ≥1.13.3：fabric-api 0.141.4 由 loom 1.13.3 构建，低版本 loom 拒绝 remap（"Mod was built with a newer version of Loom"）。
+		classpath "net.fabricmc:fabric-loom:1.13.6"
+	}
 }
+
+apply plugin: "fabric-loom"
+// maven-publish 用旧式 apply（loom 1.12.x 无 plugin marker，不能走 plugins{} 块）
+apply plugin: "maven-publish"
 
 version = project.mod_version
 group = project.maven_group
 
 repositories {
 	// Add repositories to retrieve artifacts from in here.
-	// You should only use this when depending on other mods because
-	// Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
-	// See https://docs.gradle.org/current/userguide/declaring_repositories.html
-	// for more information about repositories.
+	mavenCentral()
+	maven { url = "https://maven.fabricmc.net" }
 	maven { url = "https://api.modrinth.com/maven" }
 }
 
@@ -29,28 +39,34 @@ loom {
 dependencies {
 	// To change the versions see the gradle.properties file
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	implementation "net.fabricmc:fabric-loader:${project.loader_version}"
+	// loom 1.12.x 必须显式声明 mappings（无默认）。
+	// 用 mojmap（官方映射）：本 mod 源码整体是 mojmap 命名（26.x 移植），零翻译成本。
+	// yarn 备选（如 mojmap 撞 AW 命名空间问题再切回，需全量翻译源码）：
+	// mappings "net.fabricmc:yarn:1.21.11+build.6:v2"
+	mappings loom.officialMojangMappings()
+	// 1.21.x 时代的 mod 依赖是 intermediary 命名，必须用 modImplementation 让 loom remap 到 mojmap，
+	// 用 implementation 会直接暴露 class_xxxx 名 → 编译错误（26.x 时代 fabric-api 带 mojmap 变体才可以直用）。
+	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 
-	// Fabric API. This is technically optional, but you probably want it anyway.
-	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
-
-	// ModMenu（客户端配置界面，软依赖：装了显示"设置"按钮，没装不影响 mod 运行）
-	// 用 implementation：编译期引入、不打包进本 mod jar；运行时由用户安装 ModMenu（fabric.mod.json recommends）
-	implementation "maven.modrinth:modmenu:${project.modmenu_version}"
+	// ModMenu（客户端配置界面，软依赖）
+	modImplementation "maven.modrinth:modmenu:${project.modmenu_version}"
 
 }
 
 processResources {
 	def version = project.version
+	def mcVersion = project.minecraft_version
 	inputs.property "version", version
+	inputs.property "minecraft_version", mcVersion
 
 	filesMatching("fabric.mod.json") {
-		expand "version": version
+		expand "version": version, "minecraft_version": mcVersion
 	}
 }
 
 tasks.withType(JavaCompile).configureEach {
-	it.options.release = 25
+	it.options.release = 21
 }
 
 java {
@@ -59,20 +75,23 @@ java {
 	// If you remove this line, sources will not be generated.
 	withSourcesJar()
 
-	sourceCompatibility = JavaVersion.VERSION_25
-	targetCompatibility = JavaVersion.VERSION_25
+	sourceCompatibility = JavaVersion.VERSION_21
+	targetCompatibility = JavaVersion.VERSION_21
 }
 
 jar {
 	def projectName = project.name
 	inputs.property "projectName", projectName
 
-	// jar 文件名包含 MC 版本，便于未来多版本并存：laowu_meme-1.2.0+26.1.2.jar
-	archiveFileName = "${projectName}-${project.version}+${project.minecraft_version}.jar"
-
 	from("LICENSE") {
 		rename { "${it}_$projectName"}
 	}
+}
+
+// jar 文件名包含 MC 版本，便于多版本并存：laowu_meme-1.3.0+1.21.11.jar
+// loom 1.13 的最终产物是 remapJar（jar 任务只出中间 dev jar），自定义名必须设在 remapJar 上。
+tasks.named("remapJar") {
+	archiveFileName = "${project.name}-${project.version}+${project.minecraft_version}.jar"
 }
 
 // configure the maven publication
@@ -84,10 +103,10 @@ publishing {
 	}
 
 	// See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
-	repositories {
-		// Add repositories to publish to here.
-		// Notice: This block does NOT have the same function as the block in the top level.
-		// The repositories here will be used for publishing your artifact, not for
-		// retrieving dependencies.
-	}
+	// repositories {
+	// 	// Add repositories to publish to here.
+	// 	// Notice: This block does NOT have the same function as the block in the top level.
+	// 	// The repositories here will be used for publishing your artifact, not for
+	// 	// retrieving dependencies.
+	// }
 }

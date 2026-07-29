@@ -29,11 +29,11 @@
 	],
 	"depends": {
 		"fabricloader": ">=0.19.2",
-		"minecraft": "~26.1.2",
-		"java": ">=25",
-		"fabric-api": ">=0.152.1"
+		"minecraft": "~${minecraft_version}",
+		"java": ">=21",
+		"fabric-api": ">=0.141.4"
 	},
 	"recommends": {
-		"modmenu": ">=18.0.0"
+		"modmenu": ">=17.0.0"
 	}
 }

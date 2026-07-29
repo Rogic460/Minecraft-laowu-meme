@@ -2,8 +2,7 @@ package com.rogic.client.mixin;
 
 import com.rogic.client.render.LaowuStateAccess;
 import net.minecraft.client.model.Model;
-import net.minecraft.client.model.animal.feline.AdultFelineModel;
-import net.minecraft.client.model.animal.feline.BabyFelineModel;
+import net.minecraft.client.model.animal.feline.FelineModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.entity.state.FelineRenderState;
 import org.spongepowered.asm.mixin.Mixin;
@@ -20,7 +19,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  * （26.1 mojmap 构建无 refmap，@Shadow vanilla 字段必崩黑屏）。
  * 歪头方向从 CatRenderState 经 LaowuStateAccess 读取（extractRenderState 写入）。
  */
-@Mixin({ AdultFelineModel.class, BabyFelineModel.class })
+// 1.21.11：猫模型未拆分 Adult/Baby（26.x 才拆），setupAnim 声明在 FelineModel 基类上。
+// Ocelot 模型也继承 FelineModel，但其 render state 不实现 LaowuStateAccess → instanceof 门卫自动 no-op，安全。
+@Mixin(FelineModel.class)
 public class CatModelMixin {
 
 	/** 歪头角度：45°（设计稿要求），roll 为 ±1，相乘得镜像歪头 */

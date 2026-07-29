@@ -21,8 +21,9 @@ public class LaowuMemeMod implements ModInitializer {
 	@Override
 	public void onInitialize() {
 		// 注册 S2C 网络包类型（双端都会执行，客户端才能解码）
-		PayloadTypeRegistry.clientboundPlay().register(MemeTriggerS2CPacket.TYPE, MemeTriggerS2CPacket.CODEC);
-		PayloadTypeRegistry.clientboundPlay().register(MemeStopS2CPacket.TYPE, MemeStopS2CPacket.CODEC);
+		// 1.21.x fabric-api 叫 playS2C()（26.x 才改名 clientboundPlay()）
+		PayloadTypeRegistry.playS2C().register(MemeTriggerS2CPacket.TYPE, MemeTriggerS2CPacket.CODEC);
+		PayloadTypeRegistry.playS2C().register(MemeStopS2CPacket.TYPE, MemeStopS2CPacket.CODEC);
 
 		// 服务端每 tick 推进猫的状态机
 		ServerTickEvents.END_SERVER_TICK.register(server -> ServerMemeManager.serverTick(server));

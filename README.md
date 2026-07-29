@@ -1,6 +1,6 @@
 # laowu meme
 
-Minecraft 26.1.2 Fabric 整活 mod。
+Minecraft 1.21.11 Fabric 整活 mod（本分支 `1.21.11fabric`；其他 MC 版本见 `26.1.2fabric` / `26.2fabric` 分支）。
 
 一只命名为「老吴」的猫和任意一只猫靠近时，会头对头歪头旋转、体型放大、并随机播放两种 BGM；右键其中一只猫即可打断，两只猫自然走开。支持单人与多人，多人下服务端权威同步、所有玩家看到的效果完全一致。
 
@@ -16,16 +16,16 @@ Minecraft 26.1.2 Fabric 整活 mod。
 
 ## 构建
 
-需要 JDK 25（Minecraft 26.1 是首个不混淆版本，开发强制要求 Java 25）。
+需要 JDK 21+（本分支用 Mojang 官方映射 mojmap 构建，JDK 25 也可以）。
 
 在本机 `~/.gradle/gradle.properties` 配置：
 ```
-org.gradle.java.home=<你的 JDK 25 路径>
+org.gradle.java.home=<你的 JDK 路径>
 ```
 
 ```bash
 ./gradlew build
-# 产物：build/libs/laowu_meme-<版本>+26.1.2.jar（如 laowu_meme-1.2.0+26.1.2.jar）
+# 产物：build/libs/laowu_meme-<版本>+1.21.11.jar（如 laowu_meme-1.2.1+1.21.11.jar）
 ```
 
 ## 部署
@@ -34,10 +34,10 @@ org.gradle.java.home=<你的 JDK 25 路径>
 
 ## 版本
 
-- Minecraft 26.1.2
-- Fabric Loader 0.19.2
-- Fabric API 0.152.1+26.1.2
-- Java 25 / Gradle 9.5.1 / Loom 1.17-SNAPSHOT
+- Minecraft 1.21.11
+- Fabric Loader ≥ 0.19.2
+- Fabric API ≥ 0.141.4
+- Java 21+ / Gradle 9.5.1 / Loom 1.13.6（mojmap）
 
 ## 音频
 

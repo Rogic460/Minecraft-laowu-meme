@@ -1,6 +1,6 @@
 # laowu meme
 
-Minecraft 1.21.11 Fabric 整活 mod（本分支 `1.21.11fabric`；其他 MC 版本见 `26.1.2fabric` / `26.2fabric` 分支）。
+Minecraft 1.21.0 / 1.21.1 Fabric 整活 mod（本分支 `1.21.1fabric`；其他 MC 版本见 `26.1.2fabric` / `26.2fabric` / `1.21.11fabric` 分支）。
 
 一只命名为「老吴」的猫和任意一只猫靠近时，会头对头歪头旋转、体型放大、并随机播放两种 BGM；右键其中一只猫即可打断，两只猫自然走开。支持单人与多人，多人下服务端权威同步、所有玩家看到的效果完全一致。
 
@@ -25,41 +25,18 @@ org.gradle.java.home=<你的 JDK 路径>
 
 ```bash
 ./gradlew build
-# 产物：build/libs/laowu_meme-<版本>+1.21.11.jar（如 laowu_meme-1.2.1+1.21.11.jar）
+# 产物：build/libs/laowu_meme-<版本>+1.21.0-1.21.1.jar（如 laowu_meme-1.2.1+1.21.0-1.21.1.jar）
 ```
 
 ## 部署
 
 把 jar 放进 `mods/` 目录。多人服：服务端与客户端都要装（服务端跑整活逻辑，客户端做渲染 / 音效）；单人：装一份即可（两端自动包含）。
 
+> 单个 jar 同时支持 1.21.0 与 1.21.1（经典渲染管线，无 RenderState），元数据范围为 `[">=1.21", "<1.21.2"]`，请勿用于 1.21.2 及以上版本。
+
 ## 版本
 
-- Minecraft 1.21.11
-- Fabric Loader ≥ 0.19.2
-- Fabric API ≥ 0.141.4
-- Java 21+ / Gradle 9.5.1 / Loom 1.13.6（mojmap）
-
-## 音频
-
-### 内置音频
-
-音频文件（`laowu2.ogg` / `qiliang.ogg`）未包含在仓库中，请自行放入 `src/main/resources/assets/laowu_meme/sounds/`。
-需 Ogg Vorbis 格式（MC 只支持 ogg），可用 ffmpeg 从 mp3 转换：
-```
-ffmpeg -i input.mp3 -c:a libvorbis -q:a 4 -ar 44100 -ac 1 output.ogg
-```
-
-### 导入音频（运行时热插拔）
-
-在游戏内打开本 mod 的配置界面（触发整活后按 Escape 或 Mod 菜单进入），点击「打开音频文件夹」会打开 `config/laowu_meme/sounds/`。
-把 `.ogg` 文件放进该文件夹，**重新打开配置界面**即可看到并启用，触发整活时会随内置音频一起随机播放；无需重启游戏，也无需 F3+T 重载。
-
-- **导入音频必须是 `.ogg`（Ogg Vorbis）格式**——Minecraft 只支持 ogg，放 mp3 / wav 等其他格式不会被播放。
-- 如果你手上是 mp3，可用在线网站先转成 ogg，例如 **FreeConvert**（https://www.freeconvert.com/mp3-to-ogg）或其他同类站点（CloudConvert、OnlineConvert 等），转完把下载到的 `.ogg` 丢进上面的文件夹即可。
-- 配置界面里每条音频都可单独启用 / 禁用，禁用状态会记到 `config/laowu_meme/enabled.properties`，下次进游戏仍生效。
-## 友链
-类似mod:catfight-mod  Minecraft Fabric 1.20.1
-https://github.com/ATLCNND/catfight-mod 
-## License
-
-MIT
+- Minecraft 1.21.0 / 1.21.1（经典渲染管线）
+- Fabric Loader ≥ 0.16.10
+- Fabric API ≥ 0.116.12
+- Java 21+ / Loom 1.13.6（mojmap）

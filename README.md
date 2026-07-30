@@ -1,6 +1,6 @@
 # laowu meme
 
-Minecraft 1.21.11 Fabric 整活 mod（本分支 `1.21.11fabric`；其他 MC 版本见 `26.1.2fabric` / `26.2fabric` 分支）。
+Minecraft 1.21.11 Fabric 整活 mod（本分支 `1.21.11fabric`；其他 MC 版本见 `26.1.2fabric` / `26.2fabric` / `1.21.1fabric` 分支）。
 
 一只命名为「老吴」的猫和任意一只猫靠近时，会头对头歪头旋转、体型放大、并随机播放两种 BGM；右键其中一只猫即可打断，两只猫自然走开。支持单人与多人，多人下服务端权威同步、所有玩家看到的效果完全一致。
 

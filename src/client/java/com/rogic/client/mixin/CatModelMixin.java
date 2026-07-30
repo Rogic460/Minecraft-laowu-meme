@@ -8,24 +8,15 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.Shadow;
 
 /**
- * 经典管线（1.21.0/1.21.1）：CatModel.setupAnim 直接传实体（无 RenderState）。
- * 在 TAIL 设 head.zRot（歪头），状态按 cat.getId() 从 ClientMemeState 读。
- * 1.21 的猫模型部件是 OcelotModel 的 protected final ModelPart 字段（head/body/tail1/tail2/四腿），
- * 用 @Shadow 直接取，不通过 root.getChild（Model 类本无 root 字段，经典管线部件是直接字段）。
+ * 经典管线（1.21.x）：CatModel.setupAnim 直接传实体（无 RenderState）。在 TAIL 设 head.zRot（歪头），
+ * 状态按 cat.getId() 从 ClientMemeState 读。
+ * 1.21 的猫模型部件（head/body/tail2/四腿）字段声明在父类 OcelotModel，不在 CatModel 自身——
+ * 故部件通过 OcelotModelAccessor（@Accessor 挂在 OcelotModel）取，本 mixin 只负责 setupAnim 注入。
  */
 @Mixin(CatModel.class)
 public class CatModelMixin {
-
-	@Shadow protected ModelPart head;
-	@Shadow protected ModelPart body;
-	@Shadow protected ModelPart tail2;
-	@Shadow protected ModelPart leftHindLeg;
-	@Shadow protected ModelPart rightHindLeg;
-	@Shadow protected ModelPart leftFrontLeg;
-	@Shadow protected ModelPart rightFrontLeg;
 
 	/** 歪头角度：45°（设计稿要求），roll 为 ±1，相乘得镜像歪头 */
 	private static final float HEAD_ROLL = (float) (Math.PI / 4.0);
@@ -46,6 +37,16 @@ public class CatModelMixin {
 		int id = cat.getId();
 		boolean active = cs.isActive(id);
 		float roll = cs.getRollSign(id);
+
+		// 头/身/尾/腿部件字段声明在父类 OcelotModel，经 accessor 取（不能 @Shadow 继承字段）。
+		OcelotModelAccessor acc = (OcelotModelAccessor) (Object) this;
+		ModelPart head = acc.laowuHead();
+		ModelPart body = acc.laowuBody();
+		ModelPart tail2 = acc.laowuTail2();
+		ModelPart leftHindLeg = acc.laowuLeftHindLeg();
+		ModelPart rightHindLeg = acc.laowuRightHindLeg();
+		ModelPart leftFrontLeg = acc.laowuLeftFrontLeg();
+		ModelPart rightFrontLeg = acc.laowuRightFrontLeg();
 
 		try {
 			if (!active) {

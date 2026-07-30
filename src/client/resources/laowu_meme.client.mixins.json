@@ -2,9 +2,11 @@
 	"required": true,
 	"package": "com.rogic.client.mixin",
 	"compatibilityLevel": "JAVA_21",
+	"refmap": "laowu_meme.client.mixins.refmap.json",
 	"client": [
 		"CatRendererMixin",
 		"CatModelMixin",
+		"OcelotModelAccessor",
 		"SoundBufferLibraryMixin"
 	],
 	"injectors": {

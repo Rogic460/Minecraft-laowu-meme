@@ -92,11 +92,11 @@ jar {
 	}
 }
 
-// jar 文件名包含 MC 版本标签，便于多版本并存：laowu_meme-1.2.1+1.21.1.jar
-// 注意：本分支锁 1.21.1（minecraft_version=1.21.1）。一个 jar 只能对应一个 MC 小版本，1.21.0 需另建分支独立构建。
-// loom 1.12 的最终产物是 remapJar（jar 任务只出中间 dev jar），自定义名必须设在 remapJar 上。
+// jar 文件名标注覆盖的 MC 版本：laowu_meme-1.2.1+1.21.0-1.21.1.jar
+// 一个 jar 通吃 1.21.0 与 1.21.1（两者 client intermediary 映射一致，javap 验证 field_3435 等相同）。
+// loom 的最终产物是 remapJar（jar 任务只出中间 dev jar），自定义名必须设在 remapJar 上。
 tasks.named("remapJar") {
-	archiveFileName = "${project.name}-${project.version}+1.21.1.jar"
+	archiveFileName = "${project.name}-${project.version}+1.21.0-1.21.1.jar"
 }
 
 // configure the maven publication

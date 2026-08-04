@@ -27,9 +27,9 @@ import java.util.Map;
  * 数据来自 scripts 导出的 JSON（经 litematic_to_blueprint.py 从 Litematica .litematic 解析），
  * 内置到 /data/laowu_meme/schematics/maodie.json，运行时由服务端读取。
  *
- * 匹配策略：对每个 part，取世界中对应方块 → 比对 block id（注册表反查）+ 逐个状态属性
- * （通用比较 String.valueOf(actualValue).equals(expected)，waterlogged/facing/half/open 等都覆盖）。
- * 不硬编码任何 Property 类型，换结构只改 JSON。
+ * 匹配策略：对每个 part，取世界中对应方块 → 比对**木系方块家族后缀**（_planks/_stairs/_trapdoor/_slab，不限制具体木种）
+ * + 逐个状态属性（通用比较 String.valueOf(actualValue).equals(expected)，waterlogged/facing/half/open 等都覆盖）。
+ * 活板门朝向(facing)放宽；楼梯等其他方块的朝向仍严格卡。不旋转。
  *
  * 锚点（用于反推结构原点的参照格）= 蓝图中楼梯 [4,1,0]（删蜡烛后以此楼梯反推原点）。
  * 猫座位（猫实际 teleport 落点）= 同一格 [4,1,0] 的【上方一格】（坐楼梯顶），与原点反推用同一楼梯。
@@ -104,23 +104,69 @@ public class MaodieBlueprint {
 		}
 	}
 
-	/** 以 origin（蓝图 [0,0,0] 对应的世界坐标）为基准，逐格匹配结构。活板门朝向(facing)放宽（玩家易摆错方向），楼梯等其他方块仍严格卡朝向；不旋转。 */
-	public boolean matches(BlockGetter world, BlockPos origin) {
+	/** 以 origin（蓝图 [0,0,0] 对应的世界坐标）为基准、按 rot（0/1/2/3 = 0°/90°/180°/270° 逆时针）逐格匹配结构。
+	 * 支持结构任意水平旋转：扫描时对每个候选锚点尝试 4 个旋转，任一匹配即识别成功。
+	 * 木系方块不限制具体木种（oak/spruce/birch/jungle/acacia/dark_oak/cherry/mangrove 均可），只比对类型后缀。
+	 * 活板门朝向(facing)放宽（任意摆）；楼梯朝向随结构旋转一起旋转后严格卡（锚点靠楼梯朝向防误激活）。 */
+	public boolean matches(BlockGetter world, BlockPos origin, int rot) {
 		for (Part p : parts) {
-			BlockPos wp = origin.offset(p.offset);
+			Vec3i ro = rotateOffset(p.offset, rot);
+			BlockPos wp = origin.offset(ro);
 			BlockState actual = world.getBlockState(wp);
-			Block expected = BuiltInRegistries.BLOCK.getValue(Identifier.parse(p.block));
-			if (expected == null || actual.getBlock() != expected) return false;
+			// 木系通用匹配：只比对方块类型后缀，忽略木种前缀
+			if (!isWoodFamilyMatch(actual, p.block)) return false;
 			for (Map.Entry<String, String> en : p.state.entrySet()) {
-				// 活板门(trapdoor)朝向放宽：玩家摆错朝向也能识别；楼梯等其他方块仍严格卡朝向（锚点靠楼梯朝向防误激活）
-				if (en.getKey().equals("facing") && p.block.endsWith("trapdoor")) continue;
-				Property<?> prop = findProp(actual, en.getKey());
+				String key = en.getKey();
+				String expectedVal = en.getValue();
+				// 活板门(trapdoor)朝向放宽：玩家摆错朝向也能识别
+				if (key.equals("facing") && p.block.endsWith("trapdoor")) continue;
+				// 楼梯朝向随结构旋转而旋转
+				if (key.equals("facing") && rot != 0) expectedVal = rotateFacing(expectedVal, rot);
+				Property<?> prop = findProp(actual, key);
 				if (prop == null) return false;
 				Comparable<?> val = actual.getValue(prop);
-				if (!en.getValue().equals(String.valueOf(val))) return false;
+				if (!expectedVal.equals(String.valueOf(val))) return false;
 			}
 		}
 		return true;
+	}
+
+	/** 绕 Y 轴逆时针旋转 rot×90° 的偏移变换（与楼梯 facing 旋转一致）。 */
+	public static Vec3i rotateOffset(Vec3i off, int rot) {
+		int x = off.getX(), y = off.getY(), z = off.getZ();
+		switch (rot & 3) {
+			case 0: return off;
+			case 1: return new Vec3i(z, y, -x);
+			case 2: return new Vec3i(-x, y, -z);
+			default: return new Vec3i(-z, y, x); // case 3
+		}
+	}
+
+	/** 楼梯/朝向随结构逆时针旋转：east→north→west→south（每 90° 一步）。 */
+	private static final String[] FACING_CCW = {"east", "north", "west", "south"};
+	private static String rotateFacing(String facing, int rot) {
+		for (int i = 0; i < FACING_CCW.length; i++) {
+			if (FACING_CCW[i].equalsIgnoreCase(facing)) {
+				return FACING_CCW[(i + (rot & 3)) & 3];
+			}
+		}
+		return facing; // 未知朝向保持原值
+	}
+
+	/**
+	 * 木系方块家族匹配：expectedId 如 minecraft:jungle_stairs → 接受任意 *_stairs。
+	 * 非木系方块（无下划线后缀）回退精确匹配。
+	 */
+	private static boolean isWoodFamilyMatch(BlockState actual, String expectedId) {
+		int lastUs = expectedId.lastIndexOf('_');
+		if (lastUs > 0) {
+			String suffix = expectedId.substring(lastUs); // e.g. "_stairs"
+			String actualId = BuiltInRegistries.BLOCK.getKey(actual.getBlock()).toString();
+			return actualId.endsWith(suffix);
+		}
+		// 无下划线 → 精确匹配（本蓝图不应走到这里）
+		Block expected = BuiltInRegistries.BLOCK.getValue(Identifier.parse(expectedId));
+		return expected != null && actual.getBlock() == expected;
 	}
 
 	private static Property<?> findProp(BlockState s, String name) {

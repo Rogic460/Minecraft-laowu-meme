@@ -14,6 +14,8 @@ import net.minecraft.world.entity.animal.feline.Cat;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.entity.EntityTypeTest;
+import net.minecraft.core.Vec3i;
+import net.minecraft.core.registries.BuiltInRegistries;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -23,7 +25,7 @@ import java.util.Map;
 /**
  * 耄耋多方块结构：服务端权威扫描 + 召猫。
  *
- * - 扫描：每 SCAN_INTERVAL tick，对每个在线玩家周围 SCAN_RADIUS 找楼梯方块（锚点 = 蓝图 [4,1,0] 的楼梯），
+ * - 扫描：每 SCAN_INTERVAL tick，对每个在线玩家周围 SCAN_RADIUS 找**任意楼梯**方块（锚点 = 蓝图 [4,1,0] 的楼梯，木种不限），
  *   以其为锚点反推蓝图原点，逐格严格匹配（不旋转）。匹配成功且未绑定 → 召猫。
  * - 召猫：在锚点（楼梯）10 格内找最近、且命名为"耄耋"的猫，teleport 到楼梯格【上方一格】（坐楼梯顶）。
  *   猫切坐下姿势（不冻结 AI），"玩家靠近播放音频"全在客户端处理。
@@ -45,7 +47,7 @@ public final class MaodieStructureManager {
 		while (it.hasNext()) {
 			MaodieBinding b = it.next().getValue();
 			ServerLevel level = server.getLevel(b.dimension);
-			if (level == null || !blueprint.matches(level, b.origin) || level.getEntity(b.catId) == null) {
+			if (level == null || !blueprint.matches(level, b.origin, b.rot) || level.getEntity(b.catId) == null) {
 				release(b, server);
 				it.remove();
 			}
@@ -66,14 +68,21 @@ public final class MaodieStructureManager {
 		BlockPos min = center.offset(-r, -r, -r);
 		BlockPos max = center.offset(r, r, r);
 		for (BlockPos p : BlockPos.betweenClosed(min, max)) {
-			// 锚点方块 = 楼梯（蓝图 [4,1,0]）。结构内有多个楼梯，matches() 会过滤掉非锚点楼梯算出的错误原点，
-			// 仅真正的 [4,1,0] 楼梯能反推出全部 part 匹配的原点。
-			if (!level.getBlockState(p).is(Blocks.JUNGLE_STAIRS)) continue;
-			BlockPos origin = p.offset(-blueprint.anchorOffset.getX(), -blueprint.anchorOffset.getY(), -blueprint.anchorOffset.getZ());
-			if (structures.containsKey(origin)) continue;
-			if (blueprint.matches(level, origin)) {
-				Cat cat = findCat(level, p);
-				if (cat != null) bind(level, p, origin, cat);
+			// 锚点方块 = 任意楼梯（蓝图 [4,1,0]，木种不限）。用注册表 id 后缀判定，避免 mojmap 下类名解析问题。
+			String blockId = BuiltInRegistries.BLOCK.getKey(level.getBlockState(p).getBlock()).toString();
+			if (!blockId.endsWith("_stairs")) continue;
+			// 结构支持 4 向旋转：对每个候选锚点尝试 0/90/180/270°，任一匹配即识别成功。
+			for (int rot = 0; rot < 4; rot++) {
+				Vec3i ra = MaodieBlueprint.rotateOffset(blueprint.anchorOffset, rot);
+				BlockPos origin = p.offset(-ra.getX(), -ra.getY(), -ra.getZ());
+				if (structures.containsKey(origin)) continue;
+				if (blueprint.matches(level, origin, rot)) {
+					Cat cat = findCat(level, p);
+					if (cat != null) {
+						bind(level, p, origin, rot, cat);
+						break; // 该锚点已绑定，跳过其余旋转
+					}
+				}
 			}
 		}
 	}
@@ -95,15 +104,16 @@ public final class MaodieStructureManager {
 		return bestCat;
 	}
 
-	private static void bind(ServerLevel level, BlockPos anchor, BlockPos origin, Cat cat) {
-		// 猫落到「座位」格的【上方一格】：座位 = 楼梯 [4,1,0]，猫坐楼梯顶（与原点反推用的楼梯锚点同格）
-		BlockPos seat = origin.offset(blueprint.seatOffset);
+	private static void bind(ServerLevel level, BlockPos anchor, BlockPos origin, int rot, Cat cat) {
+		// 猫落到「座位」格的【上方一格】：座位 = 楼梯 [4,1,0]（随旋转变换），猫坐楼梯顶
+		Vec3i seatOff = MaodieBlueprint.rotateOffset(blueprint.seatOffset, rot);
+		BlockPos seat = origin.offset(seatOff);
 		cat.teleportTo(seat.getX() + 0.5, seat.getY() + 1, seat.getZ() + 0.5);
 		// 切坐下姿势（用户要求），不冻结 AI；结构解除时恢复站立
 		cat.setOrderedToSit(true);
-		structures.put(origin, new MaodieBinding(origin, anchor, cat.getId(), level.dimension()));
+		structures.put(origin, new MaodieBinding(origin, anchor, rot, cat.getId(), level.dimension()));
 		broadcast(level.getServer(), cat.getId(), true);
-		LaowuMemeMod.LOGGER.info("[maodie] 结构激活：召猫 {} 到楼梯 {}", cat.getId(), anchor);
+		LaowuMemeMod.LOGGER.info("[maodie] 结构激活：召猫 {} 到楼梯 {} (rot={})", cat.getId(), anchor, rot);
 	}
 
 	private static void release(MaodieBinding b, MinecraftServer server) {
@@ -132,12 +142,14 @@ public final class MaodieStructureManager {
 	static final class MaodieBinding {
 		final BlockPos origin;
 		final BlockPos anchor;
+		final int rot;
 		final int catId;
 		final ResourceKey<Level> dimension;
 
-		MaodieBinding(BlockPos origin, BlockPos anchor, int catId, ResourceKey<Level> dimension) {
+		MaodieBinding(BlockPos origin, BlockPos anchor, int rot, int catId, ResourceKey<Level> dimension) {
 			this.origin = origin;
 			this.anchor = anchor;
+			this.rot = rot;
 			this.catId = catId;
 			this.dimension = dimension;
 		}

@@ -5,6 +5,9 @@
 	"name": "laowu meme",
 	"description": "老吴猫对头旋转整活 mod：两只猫靠近触发头对头逆时针旋转+随机播放老吴/凄凉BGM，右键打断跑开",
 	"authors": [],
+	"contributors": [
+		"一A化三哈 —— maocraft 材质包作者（本 mod 的猫贴图来源），B 站主页 https://space.bilibili.com/1756604526"
+	],
 	"contact": {},
 	"license": "MIT",
 	"icon": "assets/laowu_meme/icon.png",

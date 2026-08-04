@@ -1,14 +1,20 @@
 package com.rogic.client;
 
+import com.rogic.LaowuMemeMod;
 import com.rogic.client.sound.AudioPool;
 import com.rogic.client.sound.ImportedSoundInstance;
+import com.rogic.client.sound.MaodieSoundInstance;
 import com.rogic.client.sound.MemeSoundInstance;
+import com.rogic.client.sound.ModSounds;
+import com.rogic.maodie.MaodieBlueprint;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 /**
@@ -30,6 +36,62 @@ public class ClientMemeState {
 
 	private final Map<Integer, ActiveCat> active = new HashMap<>();
 	private final Map<String, SoundInstance> sounds = new HashMap<>();
+	private final Map<Integer, Boolean> maodieBound = new HashMap<>();
+	/** 正在循环播放哈气音效的猫：key=catId，value=循环音效实例。进入半径起播、离开半径停止。 */
+	private final Map<Integer, MaodieSoundInstance> maodieSounds = new HashMap<>();
+
+	public boolean isMaodieBound(int id) { return maodieBound.containsKey(id); }
+	public void onMaodieBind(int catId) {
+		maodieBound.put(catId, true);
+		LaowuMemeMod.LOGGER.info("[maodie] 客户端记录绑定 catId={}", catId);
+	}
+	public void onMaodieUnbind(int catId) {
+		maodieBound.remove(catId);
+		stopMaodieSound(catId);
+		LaowuMemeMod.LOGGER.info("[maodie] 客户端解除绑定 catId={}", catId);
+	}
+
+	/**
+	 * 玩家靠近耄耋猫时由客户端每 tick 调用：在 MAODIE_PROXIMITY_RADIUS（3 格）内则持续循环播放哈气，
+	 * 离开范围即停止，直到再次进入才重新起播。
+	 */
+	public void tickMaodieAudio() {
+		Minecraft mc = Minecraft.getInstance();
+		if (mc.player == null || mc.level == null) return;
+		Player player = mc.player;
+		double r = MaodieBlueprint.MAODIE_PROXIMITY_RADIUS;
+		// 复制 keySet 避免迭代中改动 map
+		for (int catId : new HashSet<>(maodieBound.keySet())) {
+			Entity e = mc.level.getEntity(catId);
+			if (e == null) { stopMaodieSound(catId); continue; }
+			boolean near = player.distanceToSqr(e.position()) <= r * r;
+			MaodieSoundInstance inst = maodieSounds.get(catId);
+			if (near && inst == null) {
+				startMaodieSound(catId);
+			} else if (!near && inst != null) {
+				stopMaodieSound(catId);
+			}
+		}
+	}
+
+	/** 起一个跟随猫的循环哈气音效。 */
+	private void startMaodieSound(int catId) {
+		Minecraft mc = Minecraft.getInstance();
+		if (mc.level == null || mc.player == null) return;
+		MaodieSoundInstance inst = new MaodieSoundInstance(catId);
+		maodieSounds.put(catId, inst);
+		mc.getSoundManager().play(inst);
+		LaowuMemeMod.LOGGER.info("[maodie] 起循环哈气音效 catId={}", catId);
+	}
+
+	/** 停止并移除某猫的循环哈气音效。 */
+	private void stopMaodieSound(int catId) {
+		MaodieSoundInstance inst = maodieSounds.remove(catId);
+		if (inst != null) {
+			Minecraft.getInstance().getSoundManager().stop(inst);
+			LaowuMemeMod.LOGGER.info("[maodie] 停循环哈气音效 catId={}", catId);
+		}
+	}
 
 	public boolean isActive(int entityId) { return active.containsKey(entityId); }
 	public int getRollSign(int entityId) {

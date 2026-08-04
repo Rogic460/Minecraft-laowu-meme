@@ -19,5 +19,11 @@
 		"sounds": [
 			{"name": "laowu_meme:zhanhou", "stream": true}
 		]
+	},
+	"maodie": {
+		"category": "neutral",
+		"sounds": [
+			{"name": "laowu_meme:maodie", "stream": false, "attenuation_distance": 16}
+		]
 	}
 }

@@ -1,5 +1,7 @@
 package com.rogic;
 
+import com.rogic.maodie.MaodieStructureManager;
+import com.rogic.network.MaodieS2CPacket;
 import com.rogic.network.MemeStopS2CPacket;
 import com.rogic.network.MemeTriggerS2CPacket;
 import net.fabricmc.api.ModInitializer;
@@ -23,9 +25,12 @@ public class LaowuMemeMod implements ModInitializer {
 		// 注册 S2C 网络包类型（双端都会执行，客户端才能解码）
 		PayloadTypeRegistry.clientboundPlay().register(MemeTriggerS2CPacket.TYPE, MemeTriggerS2CPacket.CODEC);
 		PayloadTypeRegistry.clientboundPlay().register(MemeStopS2CPacket.TYPE, MemeStopS2CPacket.CODEC);
+		PayloadTypeRegistry.clientboundPlay().register(MaodieS2CPacket.TYPE, MaodieS2CPacket.CODEC);
 
 		// 服务端每 tick 推进猫的状态机
 		ServerTickEvents.END_SERVER_TICK.register(server -> ServerMemeManager.serverTick(server));
+		// 耄耋多方块结构：每 tick 扫描 / 召猫 / 破坏检测
+		ServerTickEvents.END_SERVER_TICK.register(server -> MaodieStructureManager.serverTick(server));
 
 		// 右键猫 → 释放（服务端权威）
 		UseEntityCallback.EVENT.register((player, world, hand, entity, hitResult) ->

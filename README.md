@@ -88,11 +88,10 @@ y\x    0     1     2     3     4     5
 
 ## 构建
 
-需要 JDK 25（Minecraft 26.1 是首个不混淆版本，开发强制要求 Java 25）。
+本分支（1.21.11）用 JDK 21+ 构建即可（26.x 分支才需要 JDK 25）。本机 JDK 路径在 `~/.gradle/gradle.properties` 配置：
 
-在本机 `~/.gradle/gradle.properties` 配置：
 ```
-org.gradle.java.home=<你的 JDK 25 路径>
+org.gradle.java.home=<你的 JDK 路径>
 ```
 
 ```bash

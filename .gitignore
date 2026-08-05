@@ -41,3 +41,6 @@ replay_*.log
 
 # 音频（不公开）
 src/main/resources/assets/laowu_meme/sounds/*.ogg
+
+# 旧 gradle 缓存改名备份（锁问题临时改名）
+.gradle_bak_lock/

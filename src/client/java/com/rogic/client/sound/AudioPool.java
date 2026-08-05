@@ -59,7 +59,9 @@ public class AudioPool {
 		if (!dir.exists()) return;
 		File[] files = dir.listFiles((d, n) -> n.toLowerCase().endsWith(".ogg"));
 		if (files == null) return;
-		for (File f : files) IMPORTED.add(stripExt(f.getName()));
+		for (File f : files) {
+			IMPORTED.add(stripExt(f.getName()));
+		}
 		Collections.sort(IMPORTED);
 	}
 

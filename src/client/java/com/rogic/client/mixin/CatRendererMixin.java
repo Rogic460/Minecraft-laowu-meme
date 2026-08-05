@@ -75,11 +75,17 @@ public class CatRendererMixin {
 
 	/** 1.21.x 原版猫贴图 <花色>.png → mod 内置 cat_<花色>.png 的路径映射；已带前缀或非猫路径原样返回。 */
 	private static String mapMaodiePath(String p) {
-		final String PREFIX = "entity/cat/";
-		if (p.startsWith(PREFIX)) {
-			String name = p.substring(PREFIX.length());
-			if (!name.startsWith("cat_")) {
-				return PREFIX + "cat_" + name;
+		// 兼容两种原版路径格式（版本差异）：
+		//   1.21.11 实测 state.texture.getPath() = "textures/entity/cat/siamese"（带 textures/ 前缀）
+		//   部分版本可能是 "entity/cat/tabby"（不带）
+		String[] prefixes = { "textures/entity/cat/", "entity/cat/" };
+		for (String PREFIX : prefixes) {
+			if (p.startsWith(PREFIX)) {
+				String name = p.substring(PREFIX.length());
+				if (!name.startsWith("cat_")) {
+					return PREFIX + "cat_" + name;
+				}
+				return p;
 			}
 		}
 		return p;

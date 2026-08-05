@@ -9,7 +9,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.animal.Cat; // 1.21.0/1.21.1 经典管线：Cat 在 entity.animal（26.x/1.21.11 才挪到 animal.feline）
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
@@ -109,19 +108,26 @@ public final class MaodieStructureManager {
 		Vec3i seatOff = MaodieBlueprint.rotateOffset(blueprint.seatOffset, rot);
 		BlockPos seat = origin.offset(seatOff);
 		cat.teleportTo(seat.getX() + 0.5, seat.getY() + 1, seat.getZ() + 0.5);
-		// 切坐下姿势（用户要求），不冻结 AI；结构解除时恢复站立
+		// 切坐下姿势（用户要求），不冻结 AI；结构解除时恢复站立。
+		// 1.21.0/1.21.1 经典管线：Cat 无独立坐姿方法，坐姿继承 TamableAnimal。
+		// 实测仅 setOrderedToSit(true) 对野猫无效（AI 会站起来）→ 双设：
+		// setOrderedToSit 设 ordered flag，setInSittingPose 直接设坐姿 flag（驱动模型坐姿，实测有效）。
 		cat.setOrderedToSit(true);
+		cat.setInSittingPose(true);
 		structures.put(origin, new MaodieBinding(origin, anchor, rot, cat.getId(), level.dimension()));
 		broadcast(level.getServer(), cat.getId(), true);
 		LaowuMemeMod.LOGGER.info("[maodie] 结构激活：召猫 {} 到楼梯 {} (rot={})", cat.getId(), anchor, rot);
 	}
 
 	private static void release(MaodieBinding b, MinecraftServer server) {
-		// 解除时让猫恢复站立（取消坐下），AI 正常运行
+		// 解除时让猫恢复站立（取消坐下），AI 正常运行（1.21.x：双设清除 ordered + sitting pose）
 		ServerLevel level = server.getLevel(b.dimension);
 		if (level != null) {
 			net.minecraft.world.entity.Entity e = level.getEntity(b.catId);
-			if (e instanceof TamableAnimal ta) ta.setOrderedToSit(false);
+			if (e instanceof Cat c) {
+				c.setOrderedToSit(false);
+				c.setInSittingPose(false);
+			}
 		}
 		broadcast(server, b.catId, false);
 		LaowuMemeMod.LOGGER.info("[maodie] 结构解除：猫 {} 恢复自由", b.catId);

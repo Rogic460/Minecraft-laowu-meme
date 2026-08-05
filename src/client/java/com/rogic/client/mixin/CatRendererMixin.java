@@ -58,10 +58,11 @@ public class CatRendererMixin {
 		}
 	}
 
-	/** 按猫当前贴图返回 mod 内置哈基米贴图（cat_<花色>.png）；未知路径返回 null（走原版）。 */
+	/** 按猫变体返回 mod 内置哈基米贴图（cat_<花色>.png）；未知路径返回 null（走原版）。 */
 	private static ResourceLocation maodieTextureFor(Cat cat) {
-		// 1.21.0/1.21.1 经典管线：Cat.getTextureId() 直接返回当前贴图 ResourceLocation（26.x 才改成 getCatVariant()）
-		ResourceLocation v = cat.getTextureId();
+		// 1.21.0/1.21.1 经典管线：Cat.getVariant()（注意：26.x 叫 getCatVariant()，1.21.x 叫 getVariant()）
+		// → CatVariant.texture() 返回当前贴图 ResourceLocation（如 minecraft:entity/cat/tabby 或带 textures/ 前缀）。
+		ResourceLocation v = cat.getVariant().value().texture();
 		String p = v.getPath();
 		// 兼容两种原版路径格式：textures/entity/cat/<花色> 或 entity/cat/<花色>
 		String[] prefixes = { "textures/entity/cat/", "entity/cat/" };

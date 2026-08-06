@@ -1,5 +1,6 @@
 package com.rogic.client.mixin;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.rogic.client.ClientMemeState;
 import com.rogic.client.render.LaowuStateAccess;
 import net.minecraft.client.renderer.entity.CatRenderer;
@@ -42,6 +43,7 @@ public class CatRendererMixin {
 		a.laowuSetActive(active);
 		a.laowuSetRoll(roll);
 		a.maodieSetBound(cs.isMaodieBound(id));
+		a.laowuSetFlat(cs.isFlattened(id));
 
 		// 耄耋换皮：直接读真实体自定义名（nameTag 仅在名字可见时填充，会随准星离开而失效 → BUG1）。
 		// 婴儿猫不换皮（用户定：幼猫保持原版贴图，避免剥离 _baby 走成猫图导致黑紫报错）。
@@ -68,6 +70,22 @@ public class CatRendererMixin {
 			if (p != null) {
 				cir.setReturnValue(Identifier.fromNamespaceAndPath("laowu_meme", p));
 			}
+		}
+	}
+
+	/**
+	 * 铲子拍扁：在 setupRotations（模型变换早期、实体本地坐标系）把 y 轴压扁。
+	 * 非均匀缩放只能对 PoseStack 做（LivingEntityRenderState.scale 是单 float，只能整体缩放）。
+	 * TAIL 保证在 super.setupRotations 与猫躺下平移之后施加，模型渲染时即被压扁。
+	 */
+	@Inject(method = "setupRotations(Lnet/minecraft/client/renderer/entity/state/CatRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;FF)V", at = @At("TAIL"))
+	private void laowuFlat(CatRenderState state, PoseStack poseStack, float ageInTicks, float rotationYaw, CallbackInfo ci) {
+		try {
+			if (((LaowuStateAccess) state).laowuIsFlat()) {
+				poseStack.scale(1f, 0.35f, 1f);
+			}
+		} catch (Throwable t) {
+			// 渲染兜底，绝不崩
 		}
 	}
 }

@@ -31,4 +31,9 @@ public interface LaowuStateAccess {
 	String maodieGetTexPath();
 
 	void maodieSetTexPath(String v);
+
+	/** 铲子拍扁：猫是否处于扁平态（渲染时 setupRotations 压扁 y 轴）。 */
+	boolean laowuIsFlat();
+
+	void laowuSetFlat(boolean v);
 }

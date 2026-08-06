@@ -80,4 +80,17 @@ public abstract class CatRenderStateMixin implements LaowuStateAccess {
 	public void maodieSetTexPath(String v) {
 		maodieTexPath = v;
 	}
+
+	@Unique
+	public boolean laowuFlat;
+
+	@Override
+	public boolean laowuIsFlat() {
+		return laowuFlat;
+	}
+
+	@Override
+	public void laowuSetFlat(boolean v) {
+		laowuFlat = v;
+	}
 }

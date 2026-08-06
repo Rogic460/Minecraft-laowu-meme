@@ -3,6 +3,7 @@ package com.rogic.client;
 import com.rogic.LaowuMemeMod;
 import com.rogic.client.sound.AudioPool;
 import com.rogic.client.sound.ModSounds;
+import com.rogic.network.FlatS2CPacket;
 import com.rogic.network.MaodieS2CPacket;
 import com.rogic.network.MemeStopS2CPacket;
 import com.rogic.network.MemeTriggerS2CPacket;
@@ -36,6 +37,10 @@ public class LaowuMemeClient implements ClientModInitializer {
 				LaowuMemeMod.LOGGER.info("[maodie] 收到解除包 catId={}", packet.catId());
 			}
 		});
+		// 铲子拍扁：flat=true 压扁渲染，flat=false 恢复
+		ClientPlayNetworking.registerGlobalReceiver(FlatS2CPacket.TYPE, (packet, context) ->
+				ClientMemeState.get().onFlat(packet.catId(), packet.flat())
+		);
 		// 每 tick 检查玩家是否靠近耄耋猫，进入半径则播放一次音频
 		ClientTickEvents.START_CLIENT_TICK.register(mc -> ClientMemeState.get().tickMaodieAudio());
 

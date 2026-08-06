@@ -1,12 +1,16 @@
 package com.rogic;
 
+import com.rogic.network.FlatS2CPacket;
 import com.rogic.network.MemeStopS2CPacket;
 import com.rogic.network.MemeTriggerS2CPacket;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.animal.feline.Cat;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ShovelItem;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.InteractionResult;
@@ -33,9 +37,13 @@ public final class ServerMemeManager {
 	public static final int SOUND_QILIANG = 1;
 	public static final int SOUND_ZHANHOU = 2;
 	public static final float ROLL_ANGLE = 0.5f;               // 歪头角度（弧度，≈28°）
+	/** 铲子拍扁：持续 tick 数（8 秒 = 8*20），到时自动恢复 */
+	public static final long FLAT_TICKS = 8L * 20;
 
 	private static final List<MemePair> activePairs = new ArrayList<>();
 	private static final Map<UUID, Long> cooldownExpire = new HashMap<>();
+	/** 铲子拍扁的猫：entityId -> 开始拍扁时的 tick */
+	private static final Map<Integer, Long> flattened = new HashMap<>();
 	private static int scanCounter = 0;
 
 	private ServerMemeManager() {}
@@ -58,6 +66,25 @@ public final class ServerMemeManager {
 
 		long now = server.getTickCount();
 		cooldownExpire.entrySet().removeIf(e -> e.getValue() <= now);
+
+		// 铲子拍扁：到时自动恢复（发 flat=false 包）
+		flattened.entrySet().removeIf(e -> {
+			if (e.getValue() + FLAT_TICKS <= now) {
+				restoreFlat(server, e.getKey());
+				return true;
+			}
+			return false;
+		});
+	}
+
+	/** 右键猫（带玩家与手）→ 手持铲子则拍扁；否则若在某配对中则释放 */
+	public static InteractionResult onRightClick(Cat cat, Player player, InteractionHand hand) {
+		if (cat == null) return InteractionResult.PASS;
+		if (player != null && player.getItemInHand(hand).getItem() instanceof ShovelItem) {
+			flattenCat(cat);
+			return InteractionResult.SUCCESS;
+		}
+		return onRightClick(cat);
 	}
 
 	/** 右键猫 → 若在某配对中则释放 */
@@ -68,6 +95,36 @@ public final class ServerMemeManager {
 		release(p, true);
 		activePairs.remove(p);
 		return InteractionResult.SUCCESS;
+	}
+
+	/** 铲子拍扁：解除对头/耄耋状态，进入扁平态（客户端渲染压扁），8 秒后自动恢复 */
+	public static void flattenCat(Cat cat) {
+		// 解除对头配对（若有）
+		MemePair p = findPair(cat.getUUID());
+		if (p != null) {
+			release(p, false);
+			activePairs.remove(p);
+		}
+		// 解除耄耋绑定（若有）——由 MaodieStructureManager 处理，这里只通知客户端恢复
+		int id = cat.getId();
+		if (!flattened.containsKey(id)) {
+			flattened.put(id, (long) (cat.level() instanceof ServerLevel sl ? sl.getServer().getTickCount() : 0));
+			MinecraftServer server = cat.level() instanceof ServerLevel sl2 ? sl2.getServer() : null;
+			if (server != null) {
+				for (ServerPlayer sp : server.getPlayerList().getPlayers()) {
+					ServerPlayNetworking.send(sp, new FlatS2CPacket(id, true));
+				}
+			}
+			LaowuMemeMod.LOGGER.info("[laowu meme] 铲子拍扁：catId={}", id);
+		}
+	}
+
+	/** 扁平态到期恢复 */
+	private static void restoreFlat(MinecraftServer server, int catId) {
+		for (ServerPlayer sp : server.getPlayerList().getPlayers()) {
+			ServerPlayNetworking.send(sp, new FlatS2CPacket(catId, false));
+		}
+		LaowuMemeMod.LOGGER.info("[laowu meme] 拍扁恢复：catId={}", catId);
 	}
 
 	// ---- 内部 ----

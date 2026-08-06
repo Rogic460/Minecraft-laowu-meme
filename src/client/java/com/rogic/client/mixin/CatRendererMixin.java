@@ -61,22 +61,25 @@ public class CatRendererMixin {
 	/** 按猫变体返回 mod 内置哈基米贴图（cat_<花色>.png）；未知路径返回 null（走原版）。 */
 	private static ResourceLocation maodieTextureFor(Cat cat) {
 		// 1.21.0/1.21.1 经典管线：Cat.getVariant()（注意：26.x 叫 getCatVariant()，1.21.x 叫 getVariant()）
-		// → CatVariant.texture() 返回当前贴图 ResourceLocation（如 minecraft:entity/cat/tabby 或带 textures/ 前缀）。
+		// → CatVariant.texture() 返回当前贴图 ResourceLocation。
+		// 实测 1.21.1 该路径带 textures/ 前缀（minecraft:textures/entity/cat/siamese）。
 		ResourceLocation v = cat.getVariant().value().texture();
 		String p = v.getPath();
-		// 兼容两种原版路径格式：textures/entity/cat/<花色> 或 entity/cat/<花色>
+		// 兼容两种原版路径格式：textures/entity/cat/<花色> 或 entity/cat/<花色>。
+		// 注意：返回给 getTextureLocation 的 Identifier path 必须【不带】 textures/ 前缀——
+		// 1.21.1 纹理加载器会自动加 textures/ 前缀去 assets/<ns>/textures/<path>.png 找资源，
+		// 若这里保留 textures/ 会拼成双重前缀 → FileNotFoundException（2026-08-06 实测黑紫根因）。
 		String[] prefixes = { "textures/entity/cat/", "entity/cat/" };
+		String name = null;
 		for (String PREFIX : prefixes) {
 			if (p.startsWith(PREFIX)) {
-				String name = p.substring(PREFIX.length());
-				if (name.endsWith(".png")) name = name.substring(0, name.length() - 4);
-				if (name.startsWith("cat_")) {
-					// 原版已带 cat_ 前缀（部分版本）：直接映射
-					return ResourceLocation.fromNamespaceAndPath("laowu_meme", PREFIX + name);
-				}
-				return ResourceLocation.fromNamespaceAndPath("laowu_meme", PREFIX + "cat_" + name);
+				name = p.substring(PREFIX.length());
+				break;
 			}
 		}
-		return null;
+		if (name == null) return null;
+		if (name.endsWith(".png")) name = name.substring(0, name.length() - 4);
+		if (!name.startsWith("cat_")) name = "cat_" + name;
+		return ResourceLocation.fromNamespaceAndPath("laowu_meme", "entity/cat/" + name);
 	}
 }

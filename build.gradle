@@ -69,6 +69,18 @@ processResources {
 	}
 }
 
+// 双保险：猫贴图同时复制到 assets/laowu_meme/entity/cat/（无 textures/ 前缀版）。
+// 1.21.0/1.21.1 经典管线换皮曾多轮黑紫（textures/ 前缀 + .png 格式歧义），
+// 无论加载器按哪种格式解析（assets/<ns>/textures/<path>.png 或 assets/<ns>/<path>.png）都能命中。
+tasks.register('duplicateCatTextures', Copy) {
+	from("src/main/resources/assets/laowu_meme/textures/entity/cat") {
+		include "*.png"
+		into "assets/laowu_meme/entity/cat"
+	}
+	into layout.buildDirectory.dir("resources/main")
+}
+processResources.dependsOn tasks.named('duplicateCatTextures')
+
 tasks.withType(JavaCompile).configureEach {
 	it.options.release = 21
 }

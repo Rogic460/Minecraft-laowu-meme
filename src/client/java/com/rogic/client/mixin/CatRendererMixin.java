@@ -62,21 +62,21 @@ public class CatRendererMixin {
 	private static ResourceLocation maodieTextureFor(Cat cat) {
 		// 1.21.0/1.21.1 经典管线：Cat.getVariant()（注意：26.x 叫 getCatVariant()，1.21.x 叫 getVariant()）
 		// → CatVariant.texture() 返回当前贴图 ResourceLocation。
-		// 与 1.21.11 同款策略：保留原版路径前缀（textures/entity/cat/ 或 entity/cat/），只补 cat_ 前缀——
-		// 1.21 系纹理加载器按 Identifier 原样找 assets/<ns>/<path>.png，原版 CatVariant.texture()
-		// 返回带 textures/ 的完整路径，保留它才能命中 mod 贴图 assets/laowu_meme/textures/entity/cat/cat_<花色>.png。
+		// 反编译 1.21.1 CatVariant（cfi.class）实证：常量 = "textures/entity/cat/tabby.png"（带 textures/ 前缀 + .png 后缀）。
+		// 原版 CatRenderer.getTextureLocation(Cat) 直接返回该值且渲染正常 → 1.21.1 加载器【按 Identifier 原样】找资源
+		// （assets/<ns>/<path>，不自动加 textures/ 也不自动加 .png）→ 必须完整保留前缀 + .png。
 		ResourceLocation v = cat.getVariant().value().texture();
 		String p = v.getPath();
-		// 兼容两种原版路径格式：textures/entity/cat/<花色> 或 entity/cat/<花色>
+		// 兼容两种原版路径格式：textures/entity/cat/<花色>.png 或 entity/cat/<花色>.png
 		String[] prefixes = { "textures/entity/cat/", "entity/cat/" };
 		for (String PREFIX : prefixes) {
 			if (p.startsWith(PREFIX)) {
-				String name = p.substring(PREFIX.length());
-				if (name.endsWith(".png")) name = name.substring(0, name.length() - 4);
+				String name = p.substring(PREFIX.length()); // 含 .png（如 tabby.png）
 				if (name.startsWith("cat_")) {
 					// 原版已带 cat_ 前缀（部分版本）：直接映射
 					return ResourceLocation.fromNamespaceAndPath("laowu_meme", PREFIX + name);
 				}
+				// 补 cat_ 前缀，保留 .png 后缀（1.21.1 加载器不自动加，原版就带）
 				return ResourceLocation.fromNamespaceAndPath("laowu_meme", PREFIX + "cat_" + name);
 			}
 		}

@@ -8,24 +8,31 @@ import com.rogic.network.MaodieS2CPacket;
 import com.rogic.network.MemeStopS2CPacket;
 import com.rogic.network.MemeTriggerS2CPacket;
 import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 
 /**
- * NeoForge 版客户端入口（Dist.CLIENT 专属，服务端不加载此类）。
- * 职责：音频初始化、S2C payload 收包处理、客户端 tick（耄耋近距哈气音频检查）。
- * 锁定/移动/释放全部由服务端驱动，客户端不跑猫 AI、不处理右键。
+ * NeoForge 版客户端入口（26.1.2 标准写法）。
+ * @Mod(dist = Dist.CLIENT) → 本类只在客户端加载，服务端不会触碰（可安全引用 client API）。
+ * 职责：S2C payload 收包 handler、音频初始化、客户端 tick（耄耋近距哈气音频检查）。
  */
-@EventBusSubscriber(modid = LaowuMemeMod.MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+@Mod(value = LaowuMemeMod.MOD_ID, dist = Dist.CLIENT)
 public class LaowuMemeClient {
 
-	@SubscribeEvent
-	public static void onRegisterPayloads(RegisterPayloadHandlersEvent event) {
-		LaowuMemeMod.LOGGER.info("[laowu meme] 客户端 payload 注册...");
+	public LaowuMemeClient(IEventBus modEventBus) {
+		modEventBus.addListener(this::onRegisterPayloads);
+		modEventBus.addListener(this::onClientSetup);
+		// 客户端 tick 挂 game bus
+		net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener(this::onClientTick);
+	}
 
+	private void onRegisterPayloads(RegisterPayloadHandlersEvent event) {
+		LaowuMemeMod.LOGGER.info("[laowu meme] 客户端 payload 注册...");
 		var registrar = event.registrar(LaowuMemeMod.MOD_ID);
 		registrar.playToClient(MemeTriggerS2CPacket.TYPE, MemeTriggerS2CPacket.CODEC,
 				(payload, context) -> context.enqueueWork(() ->
@@ -48,17 +55,14 @@ public class LaowuMemeClient {
 						ClientMemeState.get().onFlat(payload.catId(), payload.flat())));
 	}
 
-	@SubscribeEvent
-	public static void onClientSetup(FMLClientSetupEvent event) {
+	private void onClientSetup(FMLClientSetupEvent event) {
 		LaowuMemeMod.LOGGER.info("[laowu meme] 客户端初始化中...");
 		ModSounds.init();
 		AudioPool.init();
-		// 客户端 tick（耄耋近距哈气音频检查）挂 game bus——在客户端 setup 时注册，避免双 bus 冲突
-		net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener(LaowuMemeClient::onClientTick);
 		LaowuMemeMod.LOGGER.info("[laowu meme] 客户端初始化完成");
 	}
 
-	public static void onClientTick(ClientTickEvent.Post event) {
+	private void onClientTick(ClientTickEvent.Post event) {
 		ClientMemeState.get().tickMaodieAudio();
 	}
 }

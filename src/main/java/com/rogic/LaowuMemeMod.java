@@ -6,14 +6,14 @@ import net.minecraft.world.entity.animal.feline.Cat;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
-import net.neoforged.neoforge.event.server.ServerTickEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * NeoForge 版主入口（26.1.2）。
  * 服务端逻辑：服务端 tick（状态机/结构）、右键猫事件。
- * S2C payload 注册与收包在客户端 LaowuMemeClient（Dist.CLIENT，客户端专属类）处理。
+ * 客户端（payload 收包/音频/tick）在 LaowuMemeClient（@Mod dist=CLIENT，服务端不加载）。
  */
 @Mod(LaowuMemeMod.MOD_ID)
 public class LaowuMemeMod {

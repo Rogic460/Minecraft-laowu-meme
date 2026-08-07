@@ -1,0 +1,29 @@
+# laowu meme（老吴猫）NeoForge 版
+license="MIT"
+
+[[mods]]
+modId="${mod_id}"
+version="${mod_version}"
+displayName="${mod_name}"
+description='''
+以猫为主题的整活 mod：老吴猫对头整活、耄耋猫多方块结构、命名换皮（奶猫/耄耋）、铲子拍扁。
+服务端权威架构，多人一致。
+'''
+
+[[mixins]]
+config="laowu_meme.mixins.json"
+config="laowu_meme.client.mixins.json"
+
+[[dependencies.${mod_id}]]
+    modId="neoforge"
+    type="required"
+    versionRange="[${neo_version},)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="minecraft"
+    type="required"
+    versionRange="${minecraft_version_range}"
+    ordering="NONE"
+    side="BOTH"

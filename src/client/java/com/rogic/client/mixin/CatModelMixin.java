@@ -32,19 +32,20 @@ public class CatModelMixin {
 	/** 歪头角度：45°（设计稿要求），roll 为 ±1，相乘得镜像歪头 */
 	private static final float HEAD_ROLL = (float) (Math.PI / 4.0);
 	/** 蜷缩哈气：头下压幅度（弧度，≈57°，头几乎贴地。头不与腿相连，可大幅旋转不撕裂） */
-	private static final float CURL_HEAD_DIP = 1.0f;
-	/** 蜷缩哈气：身体前弓幅度（body 第1段，保守值防撕裂腿连接） */
-	private static final float CURL_BODY_PITCH = 0.15f;
-	/** 蜷缩哈气：body_mid（第2段）额外弯曲——脊柱逐段弯成 C 形 */
-	private static final float CURL_MID_PITCH = 0.25f;
-	/** 蜷缩哈气：body_front（第3段）额外弯曲——前段弯最多，头端沉向地面 */
-	private static final float CURL_FRONT_PITCH = 0.35f;
+	/** 蜷缩哈气：头贴地（参考图：头端几乎贴地，弧度大。头不与腿相连可大幅旋转） */
+	private static final float CURL_HEAD_DIP = 1.4f;
+	/** 蜷缩哈气：身体后段（臀/腰）微弓——参考图后段几乎是直的（后腿撑着） */
+	private static final float CURL_BODY_PITCH = 0.2f;
+	/** 蜷缩哈气：中段（腹腔）大幅下沉——参考图中段明显塌陷 */
+	private static final float CURL_MID_PITCH = 0.75f;
+	/** 蜷缩哈气：前段（胸腔）几乎贴地——参考图前段呈水平下沉 ≈π/2 级别 */
+	private static final float CURL_FRONT_PITCH = 1.25f;
 	/** 蜷缩哈气：尾巴下卷（tail1/tail2 平级挂 root，旋转 tail1 时 tail2 不跟随 → 两节都下卷防脱节） */
 	private static final float CURL_TAIL_CURL = 0.7f;
 	/** 蜷缩哈气：前腿前折蜷起（绕 X 轴） */
 	private static final float CURL_FRONT_TUCK = 0.5f;
-	/** 蜷缩哈气：后腿前蹲（绕 X 轴） */
-	private static final float CURL_HIND_TUCK = 0.4f;
+	/** 蜷缩哈气：后腿几乎不蹲（参考图：后腿站立支撑前半身塌下去） */
+	private static final float CURL_HIND_TUCK = 0.05f;
 	/** 蜷缩哈气：前后腿微内收（绕 Z 轴，向身体中缝收，营造蜷团感） */
 	private static final float CURL_LEG_IN = 0.25f;
 	/** 蜷缩哈气：前腿缩短（蜷缩时腿贴身体），后腿拉长（蹲起支撑） */

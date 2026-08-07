@@ -68,8 +68,8 @@ jar {
 	inputs.property "projectName", projectName
 
 	// jar 文件名含 MC 版本 + loader 标识，多版本/多 loader 并存：
-	// laowu_meme-2.0.0+26.1.2[fabric].jar（NeoForge 版用 [neoforge] 后缀区分）
-	archiveFileName = "${projectName}-${project.version}+${project.minecraft_version}[fabric].jar"
+	// laowu_meme-2.0.0+26.1.2+fabric.jar（NeoForge 版用 +neoforge 后缀区分）
+	archiveFileName = "${projectName}-${project.version}+${project.minecraft_version}+fabric.jar"
 
 	from("LICENSE") {
 		rename { "${it}_$projectName"}

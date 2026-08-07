@@ -86,20 +86,14 @@ public class CatModelMixin {
 			}
 
 			if (a.laowuIsActive()) {
-				// 老吴整活：蜷缩哈气（B 方案：多段身体弯曲）——head 大幅下压贴地 + 脊柱逐段弯曲成 C 形
-				// （body 前弓 + body_mid 再弯 + body_front 更弯，由 FelineBodySegmentMixin 拆出）+ 尾巴下卷 + 腿蜷。
+				// 老吴整活：蜷缩哈气（A 方案回退：B 多段方案不可行已回退）。
+				// 单 cube 模型约束下只能模拟趴低蜷缩：head 大幅下压贴地 + 前腿内收蜷起 + 后腿蹲 + 尾巴下卷。
+				// body 不旋转（单 cube 转多了撕裂头/腿/身体连接，且无法真"分段弯曲"）。
 				ModelPart head = root.getChild("head");
 				if (head != null) {
 					head.zRot = a.laowuGetRoll() * HEAD_ROLL;
 					head.xRot += CURL_HEAD_DIP;      // 头贴地
 				}
-				// 脊柱分段弯曲：body 前弓 + 中段 + 前段逐级加大，形成 C 形蜷缩。
-				// body_mid/body_front 是 body 的子节点（FelineBodySegmentMixin 注入构建），从 body 取。
-				ModelPart body = root.getChild("body");
-				if (body != null) body.xRot += CURL_BODY_PITCH;
-				ModelPart bodyMid = body != null ? body.getChild("body_mid") : null;
-				if (bodyMid != null) bodyMid.xRot += CURL_MID_PITCH;
-				ModelPart bodyFront = body != null ? body.getChild("body_front") : null;
 				ModelPart tail1 = root.getChild("tail1");
 				if (tail1 != null) tail1.xRot += CURL_TAIL_CURL;
 				ModelPart tail2 = root.getChild("tail2");

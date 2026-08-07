@@ -104,6 +104,9 @@ public final class ServerMemeManager {
 
 	/** 铲子拍扁：解除对头/耄耋状态，进入扁平态（客户端渲染压扁），8 秒后自动恢复 */
 	public static void flattenCat(Cat cat) {
+		// 服务端守卫：单机/集成服务器下 UseEntityCallback 在客户端线程（Render/Netty Local IO）也会触发，
+		// 此时 cat.level() 是 ClientLevel，若继续会把 flattened 时间戳存 0 → serverTick 立即判定到期 → 拍扁瞬回。
+		if (!(cat.level() instanceof ServerLevel)) return;
 		// 解除对头配对（若有）
 		MemePair p = findPair(cat.getUUID());
 		if (p != null) {

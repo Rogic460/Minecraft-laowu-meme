@@ -9,6 +9,7 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.animal.feline.Cat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,9 +37,8 @@ public class LaowuMemeMod implements ModInitializer {
 
 		// 右键猫 → 手持铲子拍扁；否则若在对头配对中则释放（服务端权威）
 		UseEntityCallback.EVENT.register((player, world, hand, entity, hitResult) -> {
-			LOGGER.info("[laowu meme] UseEntityCallback 触发：entity={} 是Cat={} player={} hand={}",
-					entity != null ? entity.getType().toString() : "null",
-					entity instanceof Cat, player, hand);
+			// 客户端线程不处理（单机集成服务器下客户端事件也会触发，交给服务端线程）
+			if (world.isClientSide()) return InteractionResult.PASS;
 			return ServerMemeManager.onRightClick(entity instanceof Cat c ? c : null, player, hand);
 		});
 

@@ -82,7 +82,8 @@ public class CatRendererMixin {
 	private void laowuFlat(CatRenderState state, PoseStack poseStack, float ageInTicks, float rotationYaw, CallbackInfo ci) {
 		try {
 			if (((LaowuStateAccess) state).laowuIsFlat()) {
-				poseStack.scale(1f, 0.35f, 1f);
+				// 拍扁：y 轴压到 0.175（先 0.35 再扁一半）。四肢由 CatModelMixin 拉长外撇形成"干"字形。
+				poseStack.scale(1f, 0.175f, 1f);
 			}
 		} catch (Throwable t) {
 			// 渲染兜底，绝不崩

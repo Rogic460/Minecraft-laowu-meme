@@ -6,10 +6,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import net.minecraft.client.Minecraft;
 
@@ -46,18 +44,9 @@ public class AudioPool {
 	}
 
 	private static final List<String> IMPORTED = new ArrayList<>();
-	private static final Set<String> disabledKeys = new LinkedHashSet<>();
 
 	public static void init() {
-		disabledKeys.clear();
 		refreshImported();  // 先扫磁盘，确保覆盖所有已知 key
-		// 从 NeoForge 配置读回禁用状态（LaowuClientConfig 存 disabled 列表）
-		for (String k : BUILTIN_KEYS) {
-			if (LaowuClientConfig.isDisabled("builtin:" + k)) disabledKeys.add("builtin:" + k);
-		}
-		for (String n : IMPORTED) {
-			if (LaowuClientConfig.isDisabled("imported:" + n)) disabledKeys.add("imported:" + n);
-		}
 	}
 
 	/** 重新扫描 config/laowu_meme/sounds/*.ogg（去掉 .ogg 后缀作为显示/匹配名），排序后存入 IMPORTED */
@@ -98,13 +87,11 @@ public class AudioPool {
 	}
 
 	public static boolean isEnabled(String key) {
-		return !disabledKeys.contains(key);
+		return LaowuClientConfig.isEnabled(key);
 	}
 
 	public static void setEnabled(String key, boolean enabled) {
-		if (enabled) disabledKeys.remove(key);
-		else disabledKeys.add(key);
-		persist();
+		LaowuClientConfig.setEnabled(key, enabled);
 	}
 
 	/** 翻转 enabled 状态，返回新值 */
@@ -112,12 +99,6 @@ public class AudioPool {
 		boolean now = !isEnabled(key);
 		setEnabled(key, now);
 		return now;
-	}
-
-	private static void persist() {
-		// 同步所有 known key 到 NeoForge 配置（disabled 列表）
-		for (String k : BUILTIN_KEYS) LaowuClientConfig.setDisabled("builtin:" + k, !isEnabled("builtin:" + k));
-		for (String n : IMPORTED) LaowuClientConfig.setDisabled("imported:" + n, !isEnabled("imported:" + n));
 	}
 
 	/** 从 enabled + imported 合并池随机挑一段（只抽启用的）；全空返回 null */

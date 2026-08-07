@@ -6,8 +6,7 @@
     "CatRendererMixin",
     "CatModelMixin",
     "CatRenderStateMixin",
-    "SoundBufferLibraryMixin",
-    "FelineBodySegmentMixin"
+    "SoundBufferLibraryMixin"
   ],
   "injectors": {
     "defaultRequire": 1

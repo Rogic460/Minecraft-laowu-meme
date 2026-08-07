@@ -25,11 +25,11 @@ import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 public class LaowuMemeClient {
 
 	public LaowuMemeClient(IEventBus modEventBus, net.neoforged.fml.ModContainer modContainer) {
-		// 注册客户端配置（CLIENT 类型）——Configured 自动为它生成图形界面
+		// 注册客户端配置（CLIENT 类型）——ModConfigSpec 持久化；Configured 也能编辑
 		modContainer.registerConfig(net.neoforged.fml.config.ModConfig.Type.CLIENT, com.rogic.client.sound.LaowuClientConfig.SPEC);
-		// 提供配置界面工厂（Mods 界面 → 配置；Configured 也识别此扩展点）
+		// 提供配置界面工厂：自绘界面（中文显示 + 动态列出导入音频）
 		modContainer.registerExtensionPoint(net.neoforged.neoforge.client.gui.IConfigScreenFactory.class,
-				(container, screen) -> new net.neoforged.neoforge.client.gui.ConfigurationScreen(container, screen));
+				(container, screen) -> new LaowuConfigScreen(screen));
 
 		// SoundEvent 注册（DeferredRegister 挂 mod bus——必须在注册表冻结前）
 		com.rogic.client.sound.ModSounds.registerTo(modEventBus);

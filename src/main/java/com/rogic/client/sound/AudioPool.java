@@ -53,7 +53,14 @@ public class AudioPool {
 	public static void refreshImported() {
 		IMPORTED.clear();
 		File dir = getSoundsDir();
-		if (!dir.exists()) return;
+		if (!dir.exists()) {
+			// 自动创建导入文件夹（首次启动/用户删了文件夹时）
+			try {
+				dir.mkdirs();
+			} catch (Exception ignored) {
+			}
+			return;
+		}
 		File[] files = dir.listFiles((d, n) -> n.toLowerCase().endsWith(".ogg"));
 		if (files == null) return;
 		for (File f : files) {

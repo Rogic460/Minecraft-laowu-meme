@@ -72,8 +72,9 @@ public class CatRendererMixin {
 		LaowuStateAccess a = (LaowuStateAccess) state;
 		// 奶猫换皮优先级最高：命名"奶猫"→ 强制 cat_milkcat 贴图（与耄耋并列）
 		if (a.milkcatIsNamed()) {
-			// MC 加载纹理的 Identifier 路径不含 textures/ 前缀（自动加）与 .png 后缀（自动加）
-			cir.setReturnValue(Identifier.fromNamespaceAndPath("laowu_meme", "entity/cat/cat_milkcat"));
+			// 26.x 纹理加载器按 Identifier 原样找资源（不自动加 textures/ 前缀，见 1.21.1 同款教训），
+			// 原版 CatVariant.texture() 返回 textures/entity/cat/<花色>.png（带前缀+后缀）→ 必须同格式。
+			cir.setReturnValue(Identifier.fromNamespaceAndPath("laowu_meme", "textures/entity/cat/cat_milkcat.png"));
 			return;
 		}
 		if (a.maodieIsNamed()) {

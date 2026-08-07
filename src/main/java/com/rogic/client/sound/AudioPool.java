@@ -25,17 +25,24 @@ import net.minecraft.client.Minecraft;
  * 多人下每只猫的动作仍服务端同步，但各自听到的音频可能不同（各玩各的梗，符合整活定位）。
  */
 public class AudioPool {
-	/** 固有音频：sound 注册名 -> SoundEvent（保持顺序：laowu2 / qiliang / zhanhou） */
-	private static final Map<String, SoundEvent> BUILTINS = new LinkedHashMap<>();
+	/** 固有音频 key（顺序：laowu2 / qiliang / zhanhou）——SoundEvent 运行时从 ModSounds 实时取（懒加载） */
+	private static final List<String> BUILTIN_KEYS = List.of("laowu2", "qiliang", "zhanhou");
 	/** 固有音频：sound 注册名 -> GUI 显示名 */
 	public static final Map<String, String> BUILTIN_DISPLAY = new LinkedHashMap<>();
 	static {
-		BUILTINS.put("laowu2", ModSounds.LAOWU2);
-		BUILTINS.put("qiliang", ModSounds.QILIANG);
-		BUILTINS.put("zhanhou", ModSounds.ZHANHOU);
 		BUILTIN_DISPLAY.put("laowu2", "[那个那个]");
 		BUILTIN_DISPLAY.put("qiliang", "[老吴凄凉]");
 		BUILTIN_DISPLAY.put("zhanhou", "[战吼]");
+	}
+
+	/** 固有音频：key -> SoundEvent（运行时取，避免静态块提前捕获 null——NeoForge 下 ModSounds 字段 setup 才赋值） */
+	private static SoundEvent builtinEvent(String key) {
+		return switch (key) {
+			case "laowu2" -> ModSounds.LAOWU2;
+			case "qiliang" -> ModSounds.QILIANG;
+			case "zhanhou" -> ModSounds.ZHANHOU;
+			default -> null;
+		};
 	}
 
 	private static final List<String> IMPORTED = new ArrayList<>();
@@ -45,7 +52,7 @@ public class AudioPool {
 		disabledKeys.clear();
 		refreshImported();  // 先扫磁盘，确保覆盖所有已知 key
 		// 从 NeoForge 配置读回禁用状态（LaowuClientConfig 存 disabled 列表）
-		for (String k : BUILTINS.keySet()) {
+		for (String k : BUILTIN_KEYS) {
 			if (LaowuClientConfig.isDisabled("builtin:" + k)) disabledKeys.add("builtin:" + k);
 		}
 		for (String n : IMPORTED) {
@@ -75,12 +82,12 @@ public class AudioPool {
 	}
 
 	public static int builtinCount() {
-		return BUILTINS.size();
+		return BUILTIN_KEYS.size();
 	}
 
-	/** 固有 key 列表（顺序与 BUILTINS 一致），用于 UI 列出所有条目 */
+	/** 固有 key 列表（顺序与 BUILTIN_KEYS 一致），用于 UI 列出所有条目 */
 	public static List<String> builtinKeys() {
-		return new ArrayList<>(BUILTINS.keySet());
+		return new ArrayList<>(BUILTIN_KEYS);
 	}
 
 	/** 导入 key 列表（顺序与 IMPORTED 一致） */
@@ -109,16 +116,17 @@ public class AudioPool {
 
 	private static void persist() {
 		// 同步所有 known key 到 NeoForge 配置（disabled 列表）
-		for (String k : BUILTINS.keySet()) LaowuClientConfig.setDisabled("builtin:" + k, !isEnabled("builtin:" + k));
+		for (String k : BUILTIN_KEYS) LaowuClientConfig.setDisabled("builtin:" + k, !isEnabled("builtin:" + k));
 		for (String n : IMPORTED) LaowuClientConfig.setDisabled("imported:" + n, !isEnabled("imported:" + n));
 	}
 
 	/** 从 enabled + imported 合并池随机挑一段（只抽启用的）；全空返回 null */
 	public static PlayTarget random() {
 		List<PlayTarget> pool = new ArrayList<>();
-		for (var e : BUILTINS.entrySet()) {
-			if (isEnabled("builtin:" + e.getKey())) {
-				pool.add(PlayTarget.builtin(e.getValue()));
+		for (String k : BUILTIN_KEYS) {
+			if (isEnabled("builtin:" + k)) {
+				SoundEvent ev = builtinEvent(k);
+				if (ev != null) pool.add(PlayTarget.builtin(ev));
 			}
 		}
 		for (String n : IMPORTED) {

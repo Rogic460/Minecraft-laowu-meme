@@ -2,7 +2,7 @@ package com.rogic.maodie;
 
 import com.rogic.LaowuMemeMod;
 import com.rogic.network.MaodieS2CPacket;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import com.rogic.network.LaowuNetwork;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
@@ -129,9 +129,7 @@ public final class MaodieStructureManager {
 
 	private static void broadcast(MinecraftServer server, int catId, boolean bound) {
 		MaodieS2CPacket pkt = new MaodieS2CPacket(catId, bound);
-		for (ServerPlayer sp : server.getPlayerList().getPlayers()) {
-			ServerPlayNetworking.send(sp, pkt);
-		}
+		LaowuNetwork.sendToAll(server, pkt);
 	}
 
 	private static boolean isBound(int catId) {

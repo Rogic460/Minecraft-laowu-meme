@@ -1,47 +1,46 @@
 package com.rogic;
 
 import com.rogic.maodie.MaodieStructureManager;
-import com.rogic.network.FlatS2CPacket;
-import com.rogic.network.MaodieS2CPacket;
-import com.rogic.network.MemeStopS2CPacket;
-import com.rogic.network.MemeTriggerS2CPacket;
-import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.fabricmc.fabric.api.event.player.UseEntityCallback;
-import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.animal.feline.Cat;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.neoforged.neoforge.event.server.ServerTickEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 主入口（* 环境，服务端/客户端都会执行）。
- * 注册网络包类型（双端），并把服务端逻辑挂到 ServerTick 与右键事件上。
+ * NeoForge 版主入口（26.1.2）。
+ * 服务端逻辑：服务端 tick（状态机/结构）、右键猫事件。
+ * S2C payload 注册与收包在客户端 LaowuMemeClient（Dist.CLIENT，客户端专属类）处理。
  */
-public class LaowuMemeMod implements ModInitializer {
+@Mod(LaowuMemeMod.MOD_ID)
+public class LaowuMemeMod {
 	public static final String MOD_ID = "laowu_meme";
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
-	@Override
-	public void onInitialize() {
-		// 注册 S2C 网络包类型（双端都会执行，客户端才能解码）
-		PayloadTypeRegistry.clientboundPlay().register(MemeTriggerS2CPacket.TYPE, MemeTriggerS2CPacket.CODEC);
-		PayloadTypeRegistry.clientboundPlay().register(MemeStopS2CPacket.TYPE, MemeStopS2CPacket.CODEC);
-		PayloadTypeRegistry.clientboundPlay().register(MaodieS2CPacket.TYPE, MaodieS2CPacket.CODEC);
-		PayloadTypeRegistry.clientboundPlay().register(FlatS2CPacket.TYPE, FlatS2CPacket.CODEC);
-
-		// 服务端每 tick 推进猫的状态机
-		ServerTickEvents.END_SERVER_TICK.register(server -> ServerMemeManager.serverTick(server));
-		// 耄耋多方块结构：每 tick 扫描 / 召猫 / 破坏检测
-		ServerTickEvents.END_SERVER_TICK.register(server -> MaodieStructureManager.serverTick(server));
-
-		// 右键猫 → 手持铲子拍扁；否则若在对头配对中则释放（服务端权威）
-		UseEntityCallback.EVENT.register((player, world, hand, entity, hitResult) -> {
-			// 客户端线程不处理（单机集成服务器下客户端事件也会触发，交给服务端线程）
-			if (world.isClientSide()) return InteractionResult.PASS;
-			return ServerMemeManager.onRightClick(entity instanceof Cat c ? c : null, player, hand);
-		});
-
+	public LaowuMemeMod(IEventBus modEventBus) {
+		var forgeBus = net.neoforged.neoforge.common.NeoForge.EVENT_BUS;
+		forgeBus.addListener(this::onServerTick);
+		forgeBus.addListener(this::onInteractEntity);
 		LOGGER.info("[laowu meme] 服务端初始化完成（服务端权威架构）");
+	}
+
+	private void onServerTick(ServerTickEvent.Post event) {
+		var server = event.getServer();
+		ServerMemeManager.serverTick(server);
+		MaodieStructureManager.serverTick(server);
+	}
+
+	private void onInteractEntity(PlayerInteractEvent.EntityInteract event) {
+		// 客户端线程不处理（单机集成服务器下客户端事件也触发，交给服务端）
+		if (event.getLevel().isClientSide()) return;
+		if (event.getTarget() instanceof Cat cat) {
+			InteractionResult result = ServerMemeManager.onRightClick(cat, event.getEntity(), event.getHand());
+			if (result != InteractionResult.PASS) {
+				event.setCanceled(true);
+			}
+		}
 	}
 }

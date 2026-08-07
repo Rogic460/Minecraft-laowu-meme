@@ -1,12 +1,11 @@
 package com.rogic;
 
 import com.rogic.network.FlatS2CPacket;
+import com.rogic.network.LaowuNetwork;
 import com.rogic.network.MemeStopS2CPacket;
 import com.rogic.network.MemeTriggerS2CPacket;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.animal.feline.Cat;
 import net.minecraft.world.entity.player.Player;
@@ -119,9 +118,7 @@ public final class ServerMemeManager {
 			flattened.put(id, (long) (cat.level() instanceof ServerLevel sl ? sl.getServer().getTickCount() : 0));
 			MinecraftServer server = cat.level() instanceof ServerLevel sl2 ? sl2.getServer() : null;
 			if (server != null) {
-				for (ServerPlayer sp : server.getPlayerList().getPlayers()) {
-					ServerPlayNetworking.send(sp, new FlatS2CPacket(id, true));
-				}
+				LaowuNetwork.sendToAll(server, new FlatS2CPacket(id, true));
 			}
 			LaowuMemeMod.LOGGER.info("[laowu meme] 铲子拍扁：catId={}", id);
 		}
@@ -129,9 +126,7 @@ public final class ServerMemeManager {
 
 	/** 扁平态到期恢复 */
 	private static void restoreFlat(MinecraftServer server, int catId) {
-		for (ServerPlayer sp : server.getPlayerList().getPlayers()) {
-			ServerPlayNetworking.send(sp, new FlatS2CPacket(catId, false));
-		}
+		LaowuNetwork.sendToAll(server, new FlatS2CPacket(catId, false));
 		LaowuMemeMod.LOGGER.info("[laowu meme] 拍扁恢复：catId={}", catId);
 	}
 
@@ -193,16 +188,12 @@ public final class ServerMemeManager {
 
 	private static void broadcastStop(MemePair p) {
 		MemeStopS2CPacket pkt = new MemeStopS2CPacket(p.catAId, p.catBId);
-		for (ServerPlayer sp : p.server().getPlayerList().getPlayers()) {
-			ServerPlayNetworking.send(sp, pkt);
-		}
+		LaowuNetwork.sendToAll(p.server(), pkt);
 	}
 
 	private static void broadcastTrigger(MemePair p) {
 		MemeTriggerS2CPacket pkt = new MemeTriggerS2CPacket(p.catAId, p.catBId, p.soundId, p.rollSign);
-		for (ServerPlayer sp : p.server().getPlayerList().getPlayers()) {
-			ServerPlayNetworking.send(sp, pkt);
-		}
+		LaowuNetwork.sendToAll(p.server(), pkt);
 	}
 
 	private static boolean isLaowu(Cat c) {

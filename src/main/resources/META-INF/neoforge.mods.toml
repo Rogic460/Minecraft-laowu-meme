@@ -12,6 +12,8 @@ description='''
 
 [[mixins]]
 config="laowu_meme.mixins.json"
+
+[[mixins]]
 config="laowu_meme.client.mixins.json"
 
 [[dependencies.${mod_id}]]

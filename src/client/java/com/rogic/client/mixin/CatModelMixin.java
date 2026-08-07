@@ -142,14 +142,16 @@ public class CatModelMixin {
 				}
 			}
 			// 铲子拍扁：四肢拉长 + 对角交叉外撇，形成"X"形（身体被 PoseStack 压扁到 y=0.175，
-			// 对角腿同向撇：左前+右后一组、右前+左后一组，交叉成 X）。
-			// 注意模型实例共享，非扁平态必须复位腿的 yScale（xRot 由原版 setupAnim 每 tick 重设）。
+			// 铲子拍扁：四肢拉长 + zRot 左右张开，形成"X"形（身体被 PoseStack 压扁到 y=0.175，
+			// 四条腿向两侧张开；对角腿同向：左前+右后一组、右前+左后一组，交叉成 X）。
+			// 注意：必须用 zRot（绕 Z 轴=左右张开），xRot 是前后摆动（左腿会往前/右腿往后，方向错）。
+			// 模型实例共享，非扁平态必须复位腿的 yScale（zRot/xRot 由原版 setupAnim 每 tick 重设）。
 			boolean flat = a.laowuIsFlat();
 			if (flat) {
-				if (leftHind != null) { leftHind.xRot = FLAT_LEG_SPLAY; leftHind.yScale = FLAT_LEG_STRETCH; }
-				if (rightHind != null) { rightHind.xRot = -FLAT_LEG_SPLAY; rightHind.yScale = FLAT_LEG_STRETCH; }
-				if (leftFront != null) { leftFront.xRot = -FLAT_LEG_SPLAY; leftFront.yScale = FLAT_LEG_STRETCH; }
-				if (rightFront != null) { rightFront.xRot = FLAT_LEG_SPLAY; rightFront.yScale = FLAT_LEG_STRETCH; }
+				if (leftHind != null) { leftHind.zRot = -FLAT_LEG_SPLAY; leftHind.yScale = FLAT_LEG_STRETCH; }
+				if (rightHind != null) { rightHind.zRot = FLAT_LEG_SPLAY; rightHind.yScale = FLAT_LEG_STRETCH; }
+				if (leftFront != null) { leftFront.zRot = FLAT_LEG_SPLAY; leftFront.yScale = FLAT_LEG_STRETCH; }
+				if (rightFront != null) { rightFront.zRot = -FLAT_LEG_SPLAY; rightFront.yScale = FLAT_LEG_STRETCH; }
 			} else {
 				// 非扁平态：腿 yScale 复位（xRot 由原版 setupAnim 每 tick 覆盖，无需处理）
 				if (leftHind != null && !a.laowuIsActive()) leftHind.yScale = LEG_SCALE_DEFAULT;

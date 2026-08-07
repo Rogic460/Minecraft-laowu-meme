@@ -43,12 +43,13 @@ public class AudioPool {
 
 	public static void init() {
 		disabledKeys.clear();
-		refreshImported();  // 先扫磁盘，确保 toBoolMap 能覆盖所有已知 key
-		// 从磁盘读回禁用状态：load 只 put 文件里有的 key（即上次禁用的）
-		Map<String, Boolean> loaded = new LinkedHashMap<>();
-		EnabledConfig.load(loaded);
-		for (var e : loaded.entrySet()) {
-			if (Boolean.FALSE.equals(e.getValue())) disabledKeys.add(e.getKey());
+		refreshImported();  // 先扫磁盘，确保覆盖所有已知 key
+		// 从 NeoForge 配置读回禁用状态（LaowuClientConfig 存 disabled 列表）
+		for (String k : BUILTINS.keySet()) {
+			if (LaowuClientConfig.isDisabled("builtin:" + k)) disabledKeys.add("builtin:" + k);
+		}
+		for (String n : IMPORTED) {
+			if (LaowuClientConfig.isDisabled("imported:" + n)) disabledKeys.add("imported:" + n);
 		}
 	}
 
@@ -107,18 +108,9 @@ public class AudioPool {
 	}
 
 	private static void persist() {
-		Map<String, Boolean> map = new LinkedHashMap<>();
-		// 把所有 known key 都写一遍（true/false 都写），保证磁盘文件反映完整状态
-		for (String k : BUILTINS.keySet()) map.put("builtin:" + k, isEnabled("builtin:" + k));
-		for (String n : IMPORTED) map.put("imported:" + n, isEnabled("imported:" + n));
-		EnabledConfig.save(map);
-	}
-
-	private static Map<String, Boolean> toBoolMap() {
-		Map<String, Boolean> m = new LinkedHashMap<>();
-		for (String k : BUILTINS.keySet()) m.put("builtin:" + k, !disabledKeys.contains("builtin:" + k));
-		for (String n : IMPORTED) m.put("imported:" + n, !disabledKeys.contains("imported:" + n));
-		return m;
+		// 同步所有 known key 到 NeoForge 配置（disabled 列表）
+		for (String k : BUILTINS.keySet()) LaowuClientConfig.setDisabled("builtin:" + k, !isEnabled("builtin:" + k));
+		for (String n : IMPORTED) LaowuClientConfig.setDisabled("imported:" + n, !isEnabled("imported:" + n));
 	}
 
 	/** 从 enabled + imported 合并池随机挑一段（只抽启用的）；全空返回 null */

@@ -24,7 +24,13 @@ import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 @Mod(value = LaowuMemeMod.MOD_ID, dist = Dist.CLIENT)
 public class LaowuMemeClient {
 
-	public LaowuMemeClient(IEventBus modEventBus) {
+	public LaowuMemeClient(IEventBus modEventBus, net.neoforged.fml.ModContainer modContainer) {
+		// 注册客户端配置（CLIENT 类型）——Configured 自动为它生成图形界面
+		modContainer.registerConfig(net.neoforged.fml.config.ModConfig.Type.CLIENT, com.rogic.client.sound.LaowuClientConfig.SPEC);
+		// 提供配置界面工厂（Mods 界面 → 配置；Configured 也识别此扩展点）
+		modContainer.registerExtensionPoint(net.neoforged.neoforge.client.gui.IConfigScreenFactory.class,
+				(container, screen) -> new net.neoforged.neoforge.client.gui.ConfigurationScreen(container, screen));
+
 		modEventBus.addListener(this::onRegisterPayloads);
 		modEventBus.addListener(this::onClientSetup);
 		// 客户端 tick 挂 game bus

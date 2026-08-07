@@ -35,8 +35,12 @@ public class LaowuMemeMod implements ModInitializer {
 		ServerTickEvents.END_SERVER_TICK.register(server -> MaodieStructureManager.serverTick(server));
 
 		// 右键猫 → 手持铲子拍扁；否则若在对头配对中则释放（服务端权威）
-		UseEntityCallback.EVENT.register((player, world, hand, entity, hitResult) ->
-				ServerMemeManager.onRightClick(entity instanceof Cat c ? c : null, player, hand));
+		UseEntityCallback.EVENT.register((player, world, hand, entity, hitResult) -> {
+			LOGGER.info("[laowu meme] UseEntityCallback 触发：entity={} 是Cat={} player={} hand={}",
+					entity != null ? entity.getType().toString() : "null",
+					entity instanceof Cat, player, hand);
+			return ServerMemeManager.onRightClick(entity instanceof Cat c ? c : null, player, hand);
+		});
 
 		LOGGER.info("[laowu meme] 服务端初始化完成（服务端权威架构）");
 	}

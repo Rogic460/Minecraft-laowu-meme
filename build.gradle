@@ -80,8 +80,8 @@ java {
 }
 
 jar {
-    // 多版本/多 loader 并存命名：laowu_meme-2.0.0+26.1.2[neoforge].jar（与 Fabric 分支区分）
-    archiveFileName = "${mod_id}-${mod_version}+${minecraft_version}[neoforge].jar"
+    // 多版本/多 loader 并存命名：laowu_meme-2.0.0+26.1.2+neoforge.jar（与 Fabric 分支区分）
+    archiveFileName = "${mod_id}-${mod_version}+${minecraft_version}+neoforge.jar"
 }
 
 publishing {

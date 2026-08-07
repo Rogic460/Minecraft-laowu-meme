@@ -31,6 +31,9 @@ public class LaowuMemeClient {
 		modContainer.registerExtensionPoint(net.neoforged.neoforge.client.gui.IConfigScreenFactory.class,
 				(container, screen) -> new net.neoforged.neoforge.client.gui.ConfigurationScreen(container, screen));
 
+		// SoundEvent 注册（DeferredRegister 挂 mod bus——必须在注册表冻结前）
+		com.rogic.client.sound.ModSounds.registerTo(modEventBus);
+
 		modEventBus.addListener(this::onRegisterPayloads);
 		modEventBus.addListener(this::onClientSetup);
 		// 客户端 tick 挂 game bus

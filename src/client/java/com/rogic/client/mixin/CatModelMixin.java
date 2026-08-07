@@ -33,8 +33,12 @@ public class CatModelMixin {
 	private static final float HEAD_ROLL = (float) (Math.PI / 4.0);
 	/** 蜷缩哈气：头下压幅度（弧度，≈57°，头几乎贴地。头不与腿相连，可大幅旋转不撕裂） */
 	private static final float CURL_HEAD_DIP = 1.0f;
-	/** 蜷缩哈气：身体前弓幅度（保守值。单 cube 模型、腿不随 body 旋转，过大会撕裂腿/头连接） */
-	private static final float CURL_BODY_PITCH = 0.20f;
+	/** 蜷缩哈气：身体前弓幅度（body 第1段，保守值防撕裂腿连接） */
+	private static final float CURL_BODY_PITCH = 0.15f;
+	/** 蜷缩哈气：body_mid（第2段）额外弯曲——脊柱逐段弯成 C 形 */
+	private static final float CURL_MID_PITCH = 0.25f;
+	/** 蜷缩哈气：body_front（第3段）额外弯曲——前段弯最多，头端沉向地面 */
+	private static final float CURL_FRONT_PITCH = 0.35f;
 	/** 蜷缩哈气：尾巴下卷（tail1/tail2 平级挂 root，旋转 tail1 时 tail2 不跟随 → 两节都下卷防脱节） */
 	private static final float CURL_TAIL_CURL = 0.7f;
 	/** 蜷缩哈气：前腿前折蜷起（绕 X 轴） */
@@ -81,20 +85,25 @@ public class CatModelMixin {
 			}
 
 			if (a.laowuIsActive()) {
-				// 老吴整活：蜷缩哈气（v1.3.x 增强）——头大幅下压贴地 + 身体前弓 + 前腿内收蜷起 + 后腿蹲 + 尾巴下卷。
-				// 单 cube 模型约束：body 不能大幅旋转（撕裂腿连接），"蜷感"主要由头下压 + 腿蜷承担。
+				// 老吴整活：蜷缩哈气（B 方案：多段身体弯曲）——head 大幅下压贴地 + 脊柱逐段弯曲成 C 形
+				// （body 前弓 + body_mid 再弯 + body_front 更弯，由 FelineBodySegmentMixin 拆出）+ 尾巴下卷 + 腿蜷。
 				ModelPart head = root.getChild("head");
 				if (head != null) {
 					head.zRot = a.laowuGetRoll() * HEAD_ROLL;
-					head.xRot += CURL_HEAD_DIP;      // 头贴地（头不与腿相连，可大幅下压）
+					head.xRot += CURL_HEAD_DIP;      // 头贴地
 				}
+				// 脊柱分段弯曲：body 前弓 + 中段 + 前段逐级加大，形成 C 形蜷缩。
+				// body_mid/body_front 是 body 的子节点（FelineBodySegmentMixin 注入构建），从 body 取。
 				ModelPart body = root.getChild("body");
-				if (body != null) body.xRot += CURL_BODY_PITCH;  // 身体前弓（保守值防撕裂）
+				if (body != null) body.xRot += CURL_BODY_PITCH;
+				ModelPart bodyMid = body != null ? body.getChild("body_mid") : null;
+				if (bodyMid != null) bodyMid.xRot += CURL_MID_PITCH;
+				ModelPart bodyFront = body != null ? body.getChild("body_front") : null;
 				ModelPart tail1 = root.getChild("tail1");
-				if (tail1 != null) tail1.xRot += CURL_TAIL_CURL; // 尾根部下卷
+				if (tail1 != null) tail1.xRot += CURL_TAIL_CURL;
 				ModelPart tail2 = root.getChild("tail2");
-				if (tail2 != null) tail2.xRot += CURL_TAIL_CURL; // 尾尖下卷（蜷成团）
-				// 前腿内收蜷起（xRot 前折 + zRot 微收），后腿蹲（yScale 拉长 + xRot 前蹲）
+				if (tail2 != null) tail2.xRot += CURL_TAIL_CURL;
+				// 前腿内收蜷起，后腿蹲
 				if (leftFront != null) { leftFront.xRot += CURL_FRONT_TUCK; leftFront.zRot += CURL_LEG_IN; leftFront.yScale = FRONT_CURL_SCALE; }
 				if (rightFront != null) { rightFront.xRot += CURL_FRONT_TUCK; rightFront.zRot -= CURL_LEG_IN; rightFront.yScale = FRONT_CURL_SCALE; }
 				if (leftHind != null) { leftHind.xRot += CURL_HIND_TUCK; leftHind.zRot += CURL_LEG_IN; leftHind.yScale = HIND_CURL_SCALE; }

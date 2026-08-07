@@ -66,6 +66,7 @@ public final class LaowuClientConfig {
 			}
 			DISABLED_IMPORTED.set(list);
 		}
-		SPEC.save();
+		// 不手动 SPEC.save()：NeoForge 配置系统会在合适时机自动保存，
+		// 避免按钮回调（渲染线程）同步文件 IO 卡顿/加剧过载
 	}
 }

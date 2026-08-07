@@ -80,10 +80,15 @@ public final class ServerMemeManager {
 	/** 右键猫（带玩家与手）→ 手持铲子则拍扁；否则若在某配对中则释放 */
 	public static InteractionResult onRightClick(Cat cat, Player player, InteractionHand hand) {
 		if (cat == null) return InteractionResult.PASS;
+		LaowuMemeMod.LOGGER.info("[laowu meme] onRightClick: cat={} player={} hand={} item={}",
+				cat.getId(), player != null ? player.getName().getString() : "null", hand,
+				player != null && player.getItemInHand(hand) != null ? player.getItemInHand(hand).getItem().toString() : "null");
 		if (player != null && player.getItemInHand(hand).getItem() instanceof ShovelItem) {
+			LaowuMemeMod.LOGGER.info("[laowu meme] 命中铲子，拍扁 catId={}", cat.getId());
 			flattenCat(cat);
 			return InteractionResult.SUCCESS;
 		}
+		LaowuMemeMod.LOGGER.info("[laowu meme] 非铲子，走对头释放逻辑 catId={}", cat.getId());
 		return onRightClick(cat);
 	}
 

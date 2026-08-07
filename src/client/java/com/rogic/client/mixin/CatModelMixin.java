@@ -31,24 +31,24 @@ public class CatModelMixin {
 
 	/** 歪头角度：45°（设计稿要求），roll 为 ±1，相乘得镜像歪头 */
 	private static final float HEAD_ROLL = (float) (Math.PI / 4.0);
-	/** 弓背哈气：头下低（绕 X 轴，正值=头端朝下、低头哈气），叠加在 setupAnim 原动画上 */
-	private static final float HEAD_DIP = 0.3f;
-	/** 弓背哈气：身体仅微弓（绕 X 轴）。猫模型 body 是单一部件、腿不随 body 旋转，
-	 *  角度过大会撕裂腿/头与身体的连接。0.10 是 v1.1.14 教训后收敛的安全值，
-	 *  "弓身感"由 HEAD_DIP(0.3，低头) + TAIL_LIFT(0.9，翘尾) 共同承担。 */
-	private static final float BODY_PITCH = 0.10f;
-	/** 弓背哈气：尾巴翘起。26.1 猫模型 tail1/tail2 平级挂 root，旋转 tail1 时 tail2 不跟随 → 脱节，
-	 *  故 tail1 保持不动，只翘 tail2（根部天然落在 tail1 末端初始位置，两节严丝合缝）。 */
-	private static final float TAIL_LIFT = 0.9f;
+	/** 蜷缩哈气：头下压幅度（弧度，≈57°，头几乎贴地。头不与腿相连，可大幅旋转不撕裂） */
+	private static final float CURL_HEAD_DIP = 1.0f;
+	/** 蜷缩哈气：身体前弓幅度（保守值。单 cube 模型、腿不随 body 旋转，过大会撕裂腿/头连接） */
+	private static final float CURL_BODY_PITCH = 0.20f;
+	/** 蜷缩哈气：尾巴下卷（tail1/tail2 平级挂 root，旋转 tail1 时 tail2 不跟随 → 两节都下卷防脱节） */
+	private static final float CURL_TAIL_CURL = 0.7f;
+	/** 蜷缩哈气：前腿前折蜷起（绕 X 轴） */
+	private static final float CURL_FRONT_TUCK = 0.5f;
+	/** 蜷缩哈气：后腿前蹲（绕 X 轴） */
+	private static final float CURL_HIND_TUCK = 0.4f;
+	/** 蜷缩哈气：前后腿微内收（绕 Z 轴，向身体中缝收，营造蜷团感） */
+	private static final float CURL_LEG_IN = 0.25f;
+	/** 蜷缩哈气：前腿缩短（蜷缩时腿贴身体），后腿拉长（蹲起支撑） */
+	private static final float FRONT_CURL_SCALE = 0.7f;
+	private static final float HIND_CURL_SCALE = 1.25f;
+	private static final float LEG_SCALE_DEFAULT = 1.0f;
 	/** 耄耋头瞄准诊断日志节流计数器（每 32 tick 打一条 [maodie-head]） */
 	private static long maodieHeadDebugTick = 0;
-	/** 腿形变（yScale）：身体弓起时腿不跟随，腿长度补偿身体位移。历史经验居中值：
-	 *  - HIND_SCALE=1.4：后腿 6→8.4（1.3 脱节 / 1.5 不够 / 1.9 插地 → 居中）。
-	 *  - FRONT_SCALE=0.85：前腿 10→8.5（0.6 缩过头不到地 / 0.9 穿模 → 居中）。
-	 *  yScale 不被原版 setupAnim 重置、且模型实例被所有猫共享，故非整活时四条腿 yScale 全部复位到 1.0。 */
-	private static final float HIND_SCALE = 1.4f;
-	private static final float FRONT_SCALE = 0.85f;
-	private static final float LEG_SCALE_DEFAULT = 1.0f;
 	/** 拍扁"X"形：四肢外撇角度（弧度，≈55°，对角腿同向撇开） */
 	private static final float FLAT_LEG_SPLAY = 0.96f;
 	/** 拍扁"X"形：四肢拉长倍数（补偿身体压扁到 0.175 后腿的缩短，让腿从身体里伸出） */
@@ -81,20 +81,24 @@ public class CatModelMixin {
 			}
 
 			if (a.laowuIsActive()) {
-				// 老吴整活：歪头（绕 Z 轴 roll，镜像）+ 低头哈气（绕 X 轴）+ 弓背（body 微弓）+ 翘尾 + 腿形变。
+				// 老吴整活：蜷缩哈气（v1.3.x 增强）——头大幅下压贴地 + 身体前弓 + 前腿内收蜷起 + 后腿蹲 + 尾巴下卷。
+				// 单 cube 模型约束：body 不能大幅旋转（撕裂腿连接），"蜷感"主要由头下压 + 腿蜷承担。
 				ModelPart head = root.getChild("head");
 				if (head != null) {
 					head.zRot = a.laowuGetRoll() * HEAD_ROLL;
-					head.xRot += HEAD_DIP;
+					head.xRot += CURL_HEAD_DIP;      // 头贴地（头不与腿相连，可大幅下压）
 				}
 				ModelPart body = root.getChild("body");
-				if (body != null) body.xRot += BODY_PITCH;
+				if (body != null) body.xRot += CURL_BODY_PITCH;  // 身体前弓（保守值防撕裂）
+				ModelPart tail1 = root.getChild("tail1");
+				if (tail1 != null) tail1.xRot += CURL_TAIL_CURL; // 尾根部下卷
 				ModelPart tail2 = root.getChild("tail2");
-				if (tail2 != null) tail2.xRot += TAIL_LIFT;
-				if (leftHind != null) leftHind.yScale = HIND_SCALE;
-				if (rightHind != null) rightHind.yScale = HIND_SCALE;
-				if (leftFront != null) leftFront.yScale = FRONT_SCALE;
-				if (rightFront != null) rightFront.yScale = FRONT_SCALE;
+				if (tail2 != null) tail2.xRot += CURL_TAIL_CURL; // 尾尖下卷（蜷成团）
+				// 前腿内收蜷起（xRot 前折 + zRot 微收），后腿蹲（yScale 拉长 + xRot 前蹲）
+				if (leftFront != null) { leftFront.xRot += CURL_FRONT_TUCK; leftFront.zRot += CURL_LEG_IN; leftFront.yScale = FRONT_CURL_SCALE; }
+				if (rightFront != null) { rightFront.xRot += CURL_FRONT_TUCK; rightFront.zRot -= CURL_LEG_IN; rightFront.yScale = FRONT_CURL_SCALE; }
+				if (leftHind != null) { leftHind.xRot += CURL_HIND_TUCK; leftHind.zRot += CURL_LEG_IN; leftHind.yScale = HIND_CURL_SCALE; }
+				if (rightHind != null) { rightHind.xRot += CURL_HIND_TUCK; rightHind.zRot -= CURL_LEG_IN; rightHind.yScale = HIND_CURL_SCALE; }
 			}
 
 			// 耄耋猫：玩家进入 MAODIE_PROXIMITY_RADIUS(5 格) 时才转头盯最近玩家（用户要求加 5 格条件）。

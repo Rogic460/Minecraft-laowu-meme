@@ -55,6 +55,11 @@ public class CatRendererMixin {
 		} else {
 			a.maodieSetTexPath(null);
 		}
+
+		// 奶猫换皮：命名"奶猫"→ 强制使用 mod 自带的 cat_milkcat 贴图（与花色无关，所有变体共用）。
+		// 与耄耋并列（独立 milkcatNamed 字段），互不干扰。
+		boolean milkcat = cat.getCustomName() != null && "奶猫".equals(cat.getCustomName().getString());
+		a.milkcatSetNamed(milkcat && !baby);
 	}
 
 	/**
@@ -65,6 +70,12 @@ public class CatRendererMixin {
 	@Inject(method = "getTextureLocation(Lnet/minecraft/client/renderer/entity/state/CatRenderState;)Lnet/minecraft/resources/Identifier;", at = @At("HEAD"), cancellable = true)
 	private void laowuMaodieTexture(CatRenderState state, CallbackInfoReturnable<Identifier> cir) {
 		LaowuStateAccess a = (LaowuStateAccess) state;
+		// 奶猫换皮优先级最高：命名"奶猫"→ 强制 cat_milkcat 贴图（与耄耋并列）
+		if (a.milkcatIsNamed()) {
+			// MC 加载纹理的 Identifier 路径不含 textures/ 前缀（自动加）与 .png 后缀（自动加）
+			cir.setReturnValue(Identifier.fromNamespaceAndPath("laowu_meme", "entity/cat/cat_milkcat"));
+			return;
+		}
 		if (a.maodieIsNamed()) {
 			String p = a.maodieGetTexPath();
 			if (p != null) {

@@ -93,4 +93,17 @@ public abstract class CatRenderStateMixin implements LaowuStateAccess {
 	public void laowuSetFlat(boolean v) {
 		laowuFlat = v;
 	}
+
+	@Unique
+	public boolean milkcatNamed;
+
+	@Override
+	public boolean milkcatIsNamed() {
+		return milkcatNamed;
+	}
+
+	@Override
+	public void milkcatSetNamed(boolean v) {
+		milkcatNamed = v;
+	}
 }

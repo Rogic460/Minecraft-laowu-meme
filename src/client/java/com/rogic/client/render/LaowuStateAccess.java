@@ -4,6 +4,7 @@ package com.rogic.client.render;
  * 让 CatRenderState 通过 mixin 携带渲染状态：
  *  - 老吴整活（锁定 + 歪头方向）
  *  - 耄耋绑定（猫是否处于耄耋结构中，需要转头盯最近玩家）
+ *  - 奶猫换皮（命名"奶猫"→ 强制使用 cat_milkcat 贴图，与耄耋并列）
  * CatRenderStateMixin 实现本接口并加 @Unique 字段；同一 CatRenderState 实例
  * 从 CatRendererMixin.extractRenderState（有 Cat 实体，能取 id）流到
  * CatModelMixin.setupAnim（只有 state，无 id），靠本接口在两者间传递。
@@ -36,4 +37,9 @@ public interface LaowuStateAccess {
 	boolean laowuIsFlat();
 
 	void laowuSetFlat(boolean v);
+
+	/** 奶猫换皮：猫自定义名是否为"奶猫"（独立于耄耋，固定使用 cat_milkcat 贴图）。 */
+	boolean milkcatIsNamed();
+
+	void milkcatSetNamed(boolean v);
 }

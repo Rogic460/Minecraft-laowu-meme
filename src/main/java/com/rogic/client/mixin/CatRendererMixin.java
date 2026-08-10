@@ -80,9 +80,29 @@ public class CatRendererMixin {
 		if (a.maodieIsNamed()) {
 			String p = a.maodieGetTexPath();
 			if (p != null) {
-				cir.setReturnValue(Identifier.fromNamespaceAndPath("laowu_meme", p));
+				// 1.21.x 原版贴图路径无 cat_ 前缀（entity/cat/tabby），mod 内置贴图沿用 26.x 命名（entity/cat/cat_tabby）
+				// → 补前缀，否则 laowu_meme:entity/cat/tabby 找不到资源 → 黑紫/贴图错误（2026-08-05 实测 BUG 修复）
+				cir.setReturnValue(Identifier.fromNamespaceAndPath("laowu_meme", mapMaodiePath(p)));
 			}
 		}
+	}
+
+	/** 1.21.x 原版猫贴图 <花色>.png → mod 内置 cat_<花色>.png 的路径映射；已带前缀或非猫路径原样返回。 */
+	private static String mapMaodiePath(String p) {
+		// 兼容两种原版路径格式（版本差异）：
+		//   1.21.11 实测 state.texture.getPath() = "textures/entity/cat/siamese"（带 textures/ 前缀）
+		//   部分版本可能是 "entity/cat/tabby"（不带）
+		String[] prefixes = { "textures/entity/cat/", "entity/cat/" };
+		for (String PREFIX : prefixes) {
+			if (p.startsWith(PREFIX)) {
+				String name = p.substring(PREFIX.length());
+				if (!name.startsWith("cat_")) {
+					return PREFIX + "cat_" + name;
+				}
+				return p;
+			}
+		}
+		return p;
 	}
 
 	/**

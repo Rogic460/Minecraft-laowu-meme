@@ -141,7 +141,13 @@ public class CatModelMixin {
 				leftFrontLeg.zRot = FLAT_LEG_SPLAY; leftFrontLeg.yScale = FLAT_LEG_STRETCH;
 				rightFrontLeg.zRot = -FLAT_LEG_SPLAY; rightFrontLeg.yScale = FLAT_LEG_STRETCH;
 			} else {
-				// 非扁平态：腿 yScale 复位（xRot 由原版 setupAnim 每 tick 覆盖，无需处理；非整活时已复位）
+				// 非扁平态：腿 zRot 必须显式复位（经典管线 1.21.1 原版 setupAnim 不重置 zRot，
+				// 拍扁后 zRot 残留会让猫恢复正常后腿一直外翘——2026-08-10 用户实测 BUG）。
+				leftHindLeg.zRot = 0f;
+				rightHindLeg.zRot = 0f;
+				leftFrontLeg.zRot = 0f;
+				rightFrontLeg.zRot = 0f;
+				// 腿 yScale 复位（非整活时已复位）
 				if (!active) {
 					leftHindLeg.yScale = LEG_SCALE_DEFAULT;
 					rightHindLeg.yScale = LEG_SCALE_DEFAULT;

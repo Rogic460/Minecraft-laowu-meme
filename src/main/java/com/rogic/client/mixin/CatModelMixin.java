@@ -5,8 +5,7 @@ import com.rogic.client.render.LaowuStateAccess;
 import com.rogic.maodie.MaodieBlueprint;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.Model;
-import net.minecraft.client.model.animal.feline.AdultFelineModel;
-import net.minecraft.client.model.animal.feline.BabyFelineModel;
+import net.minecraft.client.model.animal.feline.FelineModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.entity.state.FelineRenderState;
 import net.minecraft.world.entity.player.Player;
@@ -18,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 /**
  * 在猫模型 setupAnim 的 TAIL：
  *  - 老吴整活：head.zRot 歪头（绕 Z 轴）+ 弓背哈气（head 低头 + body 微弓 + tail2 翘）。
- *    必须放 TAIL：AdultFelineModel.setupAnim 自身会读写 head.zRot，只有之后写入才保留。
+ * 必须放 TAIL：FelineModel.setupAnim 自身会读写 head.zRot，只有之后写入才保留。
  *  - 耄耋猫：服务端令其坐下（setOrderedToSit）+ 客户端播放音频；模型层让猫头转向最近的玩家
  *    （head.yRot/xRot），BUG 1 修复。同样放 TAIL，避免被原版 setupAnim 覆盖。
  *
@@ -26,7 +25,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  * （26.1 mojmap 构建无 refmap，@Shadow vanilla 字段必崩黑屏）。
  * 状态从 CatRenderState 经 LaowuStateAccess 读取（extractRenderState 写入）。
  */
-@Mixin({ AdultFelineModel.class, BabyFelineModel.class })
+// 1.21.11：猫模型未拆分 Adult/Baby（26.x 才拆），setupAnim 声明在 FelineModel 基类上。
+// Ocelot 模型也继承 FelineModel，但其 render state 不实现 LaowuStateAccess → instanceof 门卫自动 no-op，安全。
+@Mixin(FelineModel.class)
 public class CatModelMixin {
 
 	/** 歪头角度：45°（设计稿要求），roll 为 ±1，相乘得镜像歪头 */
@@ -49,9 +50,9 @@ public class CatModelMixin {
 	private static final float HIND_SCALE = 1.4f;
 	private static final float FRONT_SCALE = 0.85f;
 	private static final float LEG_SCALE_DEFAULT = 1.0f;
-	/** 拍扁"X"形：四肢外撇角度（弧度，≈55°，对角腿同向撇开） */
+	/** 铲子拍扁：四肢外撇角度（zRot，绕 Z 轴左右张开，对角同向交叉成 X 形） */
 	private static final float FLAT_LEG_SPLAY = 0.96f;
-	/** 拍扁"X"形：四肢拉长倍数（补偿身体压扁到 0.175 后腿的缩短，让腿从身体里伸出） */
+	/** 铲子拍扁：四肢拉长倍数（yScale，身体压扁后腿显得更长） */
 	private static final float FLAT_LEG_STRETCH = 3.0f;
 
 	@Inject(method = "setupAnim(Lnet/minecraft/client/renderer/entity/state/FelineRenderState;)V", at = @At("TAIL"), require = 0)
@@ -141,7 +142,7 @@ public class CatModelMixin {
 					}
 				}
 			}
-			// 铲子拍扁：四肢拉长 + 对角交叉外撇，形成"X"形（身体被 PoseStack 压扁到 y=0.175，
+
 			// 铲子拍扁：四肢拉长 + zRot 左右张开，形成"X"形（身体被 PoseStack 压扁到 y=0.175，
 			// 四条腿向两侧张开；对角腿同向：左前+右后一组、右前+左后一组，交叉成 X）。
 			// 注意：必须用 zRot（绕 Z 轴=左右张开），xRot 是前后摆动（左腿会往前/右腿往后，方向错）。

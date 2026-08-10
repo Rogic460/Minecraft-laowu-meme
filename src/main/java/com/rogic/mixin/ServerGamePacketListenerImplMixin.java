@@ -16,10 +16,13 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * 直接注入 handleInteract（右键实体包处理），绕开 Fabric UseEntityCallback 事件层。
- * 原因（2026-08-07 实测）：服务器装有 C2ME 等 mod，UseEntityCallback 事件在 26.1.2 上
- * 完全不触发（回调不执行），但 handleInteract 是 vanilla 交互入口，必然被调用。
- * 在此检查：手持铲子右键猫 → 拍扁。
+ * 直接注入 handleInteract（右键实体包处理），绕开右键事件层（PlayerInteractEvent / UseEntityCallback）。
+ * 原因（2026-08-07 实测）：服务器装有 C2ME 等 mod，事件不触发（回调不执行），
+ * 但 handleInteract 是 vanilla 交互入口，必然被调用。在此检查：手持铲子右键猫 → 拍扁。
+ * NeoForge 版为空手打断/铲子拍扁的兜底（PlayerInteractEvent 正常路径）。
+ *
+ * 1.21.11 API 差异（vs 26.1.2）：ServerboundInteractPacket 无 entityId()/hand()，
+ * 改用 getTarget(ServerLevel) 拿实体、dispatch(Handler) 回调拿 InteractionHand（onInteraction 分支）。
  */
 @Mixin(ServerGamePacketListenerImpl.class)
 public abstract class ServerGamePacketListenerImplMixin {
@@ -33,12 +36,30 @@ public abstract class ServerGamePacketListenerImplMixin {
 			ServerPlayer p = this.player;
 			if (p == null) return;
 			if (!(p.level() instanceof ServerLevel level)) return;
-			Entity entity = level.getEntityOrPart(packet.entityId());
+			// 1.21.11：getTarget(level) 拿实体（等同 26.1.2 的 getEntityOrPart(entityId())）
+			Entity entity = packet.getTarget(level);
 			if (!(entity instanceof Cat cat)) return;
-			InteractionHand hand = packet.hand();
-			if (p.getItemInHand(hand).getItem() instanceof ShovelItem) {
-				ServerMemeManager.onRightClick(cat, p, hand);
-			}
+			// 1.21.11：无 hand()，用 dispatch 回调拿 InteractionHand（仅响应 onInteraction 分支，只处理铲子）
+			packet.dispatch(new ServerboundInteractPacket.Handler() {
+				@Override
+				public void onInteraction(InteractionHand hand) {
+					if (p.getItemInHand(hand).getItem() instanceof ShovelItem) {
+						ServerMemeManager.onRightClick(cat, p, hand);
+					}
+				}
+
+				@Override
+				public void onInteraction(InteractionHand hand, net.minecraft.world.phys.Vec3 location) {
+					if (p.getItemInHand(hand).getItem() instanceof ShovelItem) {
+						ServerMemeManager.onRightClick(cat, p, hand);
+					}
+				}
+
+				@Override
+				public void onAttack() {
+					// 攻击不处理
+				}
+			});
 		} catch (Throwable t) {
 			// 服务端兜底，绝不干扰原版交互
 		}

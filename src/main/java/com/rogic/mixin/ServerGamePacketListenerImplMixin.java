@@ -40,7 +40,8 @@ public abstract class ServerGamePacketListenerImplMixin {
 			// 1.21.11：getTarget(level) 拿实体（等同 26.1.2 的 getEntityOrPart(entityId())）
 			Entity entity = packet.getTarget(level);
 			if (!(entity instanceof Cat cat)) return;
-			// 1.21.11：无 hand()，用 dispatch 回调拿 InteractionHand（仅响应 onInteraction 分支）
+			// 1.21.11：无 hand()，用 dispatch 回调拿 InteractionHand（仅响应 onInteraction 分支）。
+			// 只处理铲子拍扁（空手打断由 UseEntityCallback 负责，避免双触发）。
 			packet.dispatch(new ServerboundInteractPacket.Handler() {
 				@Override
 				public void onInteraction(InteractionHand hand) {

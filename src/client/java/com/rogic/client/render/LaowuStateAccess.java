@@ -31,4 +31,14 @@ public interface LaowuStateAccess {
 	String maodieGetTexPath();
 
 	void maodieSetTexPath(String v);
+
+	/** 铲子拍扁：猫是否处于扁平态（客户端收包填充），驱动渲染 y 轴压扁 + 四肢外撇。 */
+	boolean laowuIsFlat();
+
+	void laowuSetFlat(boolean v);
+
+	/** 奶猫换皮：猫自定义名是否为"奶猫"（直接读真实体）。 */
+	boolean milkcatIsNamed();
+
+	void milkcatSetNamed(boolean v);
 }

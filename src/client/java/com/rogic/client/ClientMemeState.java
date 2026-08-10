@@ -39,8 +39,16 @@ public class ClientMemeState {
 	private final Map<Integer, Boolean> maodieBound = new HashMap<>();
 	/** 正在循环播放哈气音效的猫：key=catId，value=循环音效实例。进入半径起播、离开半径停止。 */
 	private final Map<Integer, MaodieSoundInstance> maodieSounds = new HashMap<>();
+	/** 铲子拍扁中的猫：key=catId，value=是否扁平（服务端 FlatS2CPacket 驱动） */
+	private final Map<Integer, Boolean> flattened = new HashMap<>();
 
 	public boolean isMaodieBound(int id) { return maodieBound.containsKey(id); }
+	public boolean isFlattened(int id) { return flattened.containsKey(id) && Boolean.TRUE.equals(flattened.get(id)); }
+	public void onFlat(int catId, boolean flat) {
+		if (flat) flattened.put(catId, true);
+		else flattened.remove(catId);
+		LaowuMemeMod.LOGGER.info("[laowu meme] 客户端拍扁状态 catId={} flat={}", catId, flat);
+	}
 	public void onMaodieBind(int catId) {
 		maodieBound.put(catId, true);
 		LaowuMemeMod.LOGGER.info("[maodie] 客户端记录绑定 catId={}", catId);

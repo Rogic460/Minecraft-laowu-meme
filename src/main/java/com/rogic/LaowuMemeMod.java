@@ -1,20 +1,21 @@
 package com.rogic;
 
 import com.rogic.maodie.MaodieStructureManager;
+import com.rogic.network.FlatS2CPacket;
 import com.rogic.network.MaodieS2CPacket;
 import com.rogic.network.MemeStopS2CPacket;
 import com.rogic.network.MemeTriggerS2CPacket;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
-import net.minecraft.world.entity.animal.feline.Cat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * 主入口（* 环境，服务端/客户端都会执行）。
- * 注册网络包类型（双端），并把服务端逻辑挂到 ServerTick 与右键事件上。
+ * 注册网络包类型（双端），并把服务端逻辑挂到 ServerTick 上。
+ * 右键处理走 ServerGamePacketListenerImplMixin（handleInteract 注入）——
+ * 服务器装有 C2ME 等 mod 时 UseEntityCallback 事件不触发，mixin 注入 vanilla 入口保证兼容。
  */
 public class LaowuMemeMod implements ModInitializer {
 	public static final String MOD_ID = "laowu_meme";
@@ -27,15 +28,12 @@ public class LaowuMemeMod implements ModInitializer {
 		PayloadTypeRegistry.playS2C().register(MemeTriggerS2CPacket.TYPE, MemeTriggerS2CPacket.CODEC);
 		PayloadTypeRegistry.playS2C().register(MemeStopS2CPacket.TYPE, MemeStopS2CPacket.CODEC);
 		PayloadTypeRegistry.playS2C().register(MaodieS2CPacket.TYPE, MaodieS2CPacket.CODEC);
+		PayloadTypeRegistry.playS2C().register(FlatS2CPacket.TYPE, FlatS2CPacket.CODEC);
 
 		// 服务端每 tick 推进猫的状态机
 		ServerTickEvents.END_SERVER_TICK.register(server -> ServerMemeManager.serverTick(server));
 		// 耄耋多方块结构：每 tick 扫描 / 召猫 / 破坏检测
 		ServerTickEvents.END_SERVER_TICK.register(server -> MaodieStructureManager.serverTick(server));
-
-		// 右键猫 → 释放（服务端权威）
-		UseEntityCallback.EVENT.register((player, world, hand, entity, hitResult) ->
-				ServerMemeManager.onRightClick(entity instanceof Cat c ? c : null));
 
 		LOGGER.info("[laowu meme] 服务端初始化完成（服务端权威架构）");
 	}

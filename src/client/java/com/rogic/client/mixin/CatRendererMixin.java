@@ -1,5 +1,6 @@
 package com.rogic.client.mixin;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.rogic.client.ClientMemeState;
 import com.rogic.client.render.LaowuStateAccess;
 import net.minecraft.client.renderer.entity.CatRenderer;
@@ -42,6 +43,7 @@ public class CatRendererMixin {
 		a.laowuSetActive(active);
 		a.laowuSetRoll(roll);
 		a.maodieSetBound(cs.isMaodieBound(id));
+		a.laowuSetFlat(cs.isFlattened(id));
 
 		// 耄耋换皮：直接读真实体自定义名（nameTag 仅在名字可见时填充，会随准星离开而失效 → BUG1）。
 		// 婴儿猫不换皮（用户定：幼猫保持原版贴图，避免剥离 _baby 走成猫图导致黑紫报错）。
@@ -53,6 +55,11 @@ public class CatRendererMixin {
 		} else {
 			a.maodieSetTexPath(null);
 		}
+
+		// 奶猫换皮：命名"奶猫"→ 强制使用 mod 自带的 cat_milkcat 贴图（与花色无关，所有变体共用）。
+		// 与耄耋并列（独立 milkcatNamed 字段），互不干扰。
+		boolean milkcat = cat.getCustomName() != null && "奶猫".equals(cat.getCustomName().getString());
+		a.milkcatSetNamed(milkcat && !baby);
 	}
 
 	/**
@@ -63,6 +70,13 @@ public class CatRendererMixin {
 	@Inject(method = "getTextureLocation(Lnet/minecraft/client/renderer/entity/state/CatRenderState;)Lnet/minecraft/resources/Identifier;", at = @At("HEAD"), cancellable = true)
 	private void laowuMaodieTexture(CatRenderState state, CallbackInfoReturnable<Identifier> cir) {
 		LaowuStateAccess a = (LaowuStateAccess) state;
+		// 奶猫换皮优先级最高：命名"奶猫"→ 强制 cat_milkcat 贴图（与耄耋并列）
+		if (a.milkcatIsNamed()) {
+			// 纹理加载器按 Identifier 原样找资源（不自动加 textures/ 前缀，见 1.21.1 同款教训），
+			// 原版 CatVariant.texture() 返回 textures/entity/cat/<花色>.png（带前缀+后缀）→ 必须同格式。
+			cir.setReturnValue(Identifier.fromNamespaceAndPath("laowu_meme", "textures/entity/cat/cat_milkcat.png"));
+			return;
+		}
 		if (a.maodieIsNamed()) {
 			String p = a.maodieGetTexPath();
 			if (p != null) {
@@ -89,5 +103,22 @@ public class CatRendererMixin {
 			}
 		}
 		return p;
+	}
+
+	/**
+	 * 铲子拍扁：在 setupRotations（模型变换早期、实体本地坐标系）把 y 轴压扁。
+	 * 非均匀缩放只能对 PoseStack 做（LivingEntityRenderState.scale 是单 float，只能整体缩放）。
+	 * TAIL 保证在 super.setupRotations 与猫躺下平移之后施加，模型渲染时即被压扁。
+	 */
+	@Inject(method = "setupRotations(Lnet/minecraft/client/renderer/entity/state/CatRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;FF)V", at = @At("TAIL"))
+	private void laowuFlat(CatRenderState state, PoseStack poseStack, float ageInTicks, float rotationYaw, CallbackInfo ci) {
+		try {
+			if (((LaowuStateAccess) state).laowuIsFlat()) {
+				// 拍扁：y 轴压到 0.175（先 0.35 再扁一半）。四肢由 CatModelMixin 拉长外撇形成"干"字形。
+				poseStack.scale(1f, 0.175f, 1f);
+			}
+		} catch (Throwable t) {
+			// 渲染兜底，绝不崩
+		}
 	}
 }

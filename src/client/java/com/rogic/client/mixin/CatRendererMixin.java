@@ -30,6 +30,11 @@ public class CatRendererMixin {
 	@Inject(method = "scale(Lnet/minecraft/world/entity/animal/Cat;Lcom/mojang/blaze3d/vertex/PoseStack;F)V", at = @At("HEAD"))
 	private void laowuScale(Cat cat, PoseStack poseStack, float partialTick, CallbackInfo ci) {
 		try {
+			// 铲子拍扁优先级最高：扁平态只压扁（y=0.175），不放大
+			if (ClientMemeState.get().isFlattened(cat.getId())) {
+				poseStack.scale(1f, 0.175f, 1f);
+				return;
+			}
 			if (ClientMemeState.get().isActive(cat.getId())) {
 				poseStack.scale(1.25f, 1.25f, 1.25f);
 			}
@@ -48,7 +53,14 @@ public class CatRendererMixin {
 		try {
 			if (cat.isBaby()) return;
 			if (cat.getCustomName() == null) return;
-			if (!MaodieBlueprint.MAODIE_NAME.equals(cat.getCustomName().getString())) return;
+			String name = cat.getCustomName().getString();
+			// 奶猫换皮优先级最高：命名"奶猫"→ 强制 cat_milkcat 贴图（与花色无关，所有变体共用）
+			if ("奶猫".equals(name)) {
+				// 1.21.1 加载器按 Identifier 原样找资源（不自动加 textures/ 前缀）→ 完整路径
+				cir.setReturnValue(ResourceLocation.fromNamespaceAndPath("laowu_meme", "textures/entity/cat/cat_milkcat.png"));
+				return;
+			}
+			if (!MaodieBlueprint.MAODIE_NAME.equals(name)) return;
 			ResourceLocation modTex = maodieTextureFor(cat);
 			if (modTex != null) {
 				cir.setReturnValue(modTex);

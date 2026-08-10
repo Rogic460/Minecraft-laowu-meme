@@ -38,6 +38,10 @@ public class CatModelMixin {
 	private static final float HIND_SCALE = 1.4f;
 	private static final float FRONT_SCALE = 0.85f;
 	private static final float LEG_SCALE_DEFAULT = 1.0f;
+	/** 铲子拍扁：四肢外撇角度（zRot，绕 Z 轴左右张开，对角同向交叉成 X 形） */
+	private static final float FLAT_LEG_SPLAY = 0.96f;
+	/** 铲子拍扁：四肢拉长倍数（yScale，身体压扁后腿显得更长） */
+	private static final float FLAT_LEG_STRETCH = 3.0f;
 	/** 耄耋头瞄准诊断日志节流计数器（每 32 tick 打一条 [maodie-head]） */
 	private static long maodieHeadDebugTick = 0;
 
@@ -123,6 +127,26 @@ public class CatModelMixin {
 							}
 						}
 					}
+				}
+			}
+
+			// 铲子拍扁：四肢拉长 + zRot 左右张开，形成"X"形（身体被 CatRenderer.scale 压扁到 y=0.175，
+			// 四条腿向两侧张开；对角腿同向：左前+右后一组、右前+左后一组，交叉成 X）。
+			// 注意：必须用 zRot（绕 Z 轴=左右张开），xRot 是前后摆动（方向错）。
+			// 模型实例共享，非扁平态必须复位腿的 yScale（zRot/xRot 由原版 setupAnim 每 tick 重设）。
+			boolean flat = cs.isFlattened(id);
+			if (flat) {
+				leftHindLeg.zRot = -FLAT_LEG_SPLAY; leftHindLeg.yScale = FLAT_LEG_STRETCH;
+				rightHindLeg.zRot = FLAT_LEG_SPLAY; rightHindLeg.yScale = FLAT_LEG_STRETCH;
+				leftFrontLeg.zRot = FLAT_LEG_SPLAY; leftFrontLeg.yScale = FLAT_LEG_STRETCH;
+				rightFrontLeg.zRot = -FLAT_LEG_SPLAY; rightFrontLeg.yScale = FLAT_LEG_STRETCH;
+			} else {
+				// 非扁平态：腿 yScale 复位（xRot 由原版 setupAnim 每 tick 覆盖，无需处理；非整活时已复位）
+				if (!active) {
+					leftHindLeg.yScale = LEG_SCALE_DEFAULT;
+					rightHindLeg.yScale = LEG_SCALE_DEFAULT;
+					leftFrontLeg.yScale = LEG_SCALE_DEFAULT;
+					rightFrontLeg.yScale = LEG_SCALE_DEFAULT;
 				}
 			}
 		} catch (Throwable t) {

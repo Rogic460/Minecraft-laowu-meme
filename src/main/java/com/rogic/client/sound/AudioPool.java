@@ -6,10 +6,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import net.minecraft.client.Minecraft;
 
@@ -25,41 +23,49 @@ import net.minecraft.client.Minecraft;
  * 多人下每只猫的动作仍服务端同步，但各自听到的音频可能不同（各玩各的梗，符合整活定位）。
  */
 public class AudioPool {
-	/** 固有音频：sound 注册名 -> SoundEvent（保持顺序：laowu2 / qiliang / zhanhou） */
-	private static final Map<String, SoundEvent> BUILTINS = new LinkedHashMap<>();
+	/** 固有音频 key（顺序：laowu2 / qiliang / zhanhou）——SoundEvent 运行时从 ModSounds 实时取（懒加载） */
+	private static final List<String> BUILTIN_KEYS = List.of("laowu2", "qiliang", "zhanhou");
 	/** 固有音频：sound 注册名 -> GUI 显示名 */
 	public static final Map<String, String> BUILTIN_DISPLAY = new LinkedHashMap<>();
 	static {
-		BUILTINS.put("laowu2", ModSounds.LAOWU2);
-		BUILTINS.put("qiliang", ModSounds.QILIANG);
-		BUILTINS.put("zhanhou", ModSounds.ZHANHOU);
 		BUILTIN_DISPLAY.put("laowu2", "[那个那个]");
 		BUILTIN_DISPLAY.put("qiliang", "[老吴凄凉]");
 		BUILTIN_DISPLAY.put("zhanhou", "[战吼]");
 	}
 
+	/** 固有音频：key -> SoundEvent（运行时取，避免静态块提前捕获 null——NeoForge 下 ModSounds 字段 setup 才赋值） */
+	private static SoundEvent builtinEvent(String key) {
+		return switch (key) {
+			case "laowu2" -> ModSounds.LAOWU2;
+			case "qiliang" -> ModSounds.QILIANG;
+			case "zhanhou" -> ModSounds.ZHANHOU;
+			default -> null;
+		};
+	}
+
 	private static final List<String> IMPORTED = new ArrayList<>();
-	private static final Set<String> disabledKeys = new LinkedHashSet<>();
 
 	public static void init() {
-		disabledKeys.clear();
-		refreshImported();  // 先扫磁盘，确保 toBoolMap 能覆盖所有已知 key
-		// 从磁盘读回禁用状态：load 只 put 文件里有的 key（即上次禁用的）
-		Map<String, Boolean> loaded = new LinkedHashMap<>();
-		EnabledConfig.load(loaded);
-		for (var e : loaded.entrySet()) {
-			if (Boolean.FALSE.equals(e.getValue())) disabledKeys.add(e.getKey());
-		}
+		refreshImported();  // 先扫磁盘，确保覆盖所有已知 key
 	}
 
 	/** 重新扫描 config/laowu_meme/sounds/*.ogg（去掉 .ogg 后缀作为显示/匹配名），排序后存入 IMPORTED */
 	public static void refreshImported() {
 		IMPORTED.clear();
 		File dir = getSoundsDir();
-		if (!dir.exists()) return;
+		if (!dir.exists()) {
+			// 自动创建导入文件夹（首次启动/用户删了文件夹时）
+			try {
+				dir.mkdirs();
+			} catch (Exception ignored) {
+			}
+			return;
+		}
 		File[] files = dir.listFiles((d, n) -> n.toLowerCase().endsWith(".ogg"));
 		if (files == null) return;
-		for (File f : files) IMPORTED.add(stripExt(f.getName()));
+		for (File f : files) {
+			IMPORTED.add(stripExt(f.getName()));
+		}
 		Collections.sort(IMPORTED);
 	}
 
@@ -72,12 +78,12 @@ public class AudioPool {
 	}
 
 	public static int builtinCount() {
-		return BUILTINS.size();
+		return BUILTIN_KEYS.size();
 	}
 
-	/** 固有 key 列表（顺序与 BUILTINS 一致），用于 UI 列出所有条目 */
+	/** 固有 key 列表（顺序与 BUILTIN_KEYS 一致），用于 UI 列出所有条目 */
 	public static List<String> builtinKeys() {
-		return new ArrayList<>(BUILTINS.keySet());
+		return new ArrayList<>(BUILTIN_KEYS);
 	}
 
 	/** 导入 key 列表（顺序与 IMPORTED 一致） */
@@ -88,13 +94,11 @@ public class AudioPool {
 	}
 
 	public static boolean isEnabled(String key) {
-		return !disabledKeys.contains(key);
+		return LaowuClientConfig.isEnabled(key);
 	}
 
 	public static void setEnabled(String key, boolean enabled) {
-		if (enabled) disabledKeys.remove(key);
-		else disabledKeys.add(key);
-		persist();
+		LaowuClientConfig.setEnabled(key, enabled);
 	}
 
 	/** 翻转 enabled 状态，返回新值 */
@@ -104,27 +108,13 @@ public class AudioPool {
 		return now;
 	}
 
-	private static void persist() {
-		Map<String, Boolean> map = new LinkedHashMap<>();
-		// 把所有 known key 都写一遍（true/false 都写），保证磁盘文件反映完整状态
-		for (String k : BUILTINS.keySet()) map.put("builtin:" + k, isEnabled("builtin:" + k));
-		for (String n : IMPORTED) map.put("imported:" + n, isEnabled("imported:" + n));
-		EnabledConfig.save(map);
-	}
-
-	private static Map<String, Boolean> toBoolMap() {
-		Map<String, Boolean> m = new LinkedHashMap<>();
-		for (String k : BUILTINS.keySet()) m.put("builtin:" + k, !disabledKeys.contains("builtin:" + k));
-		for (String n : IMPORTED) m.put("imported:" + n, !disabledKeys.contains("imported:" + n));
-		return m;
-	}
-
 	/** 从 enabled + imported 合并池随机挑一段（只抽启用的）；全空返回 null */
 	public static PlayTarget random() {
 		List<PlayTarget> pool = new ArrayList<>();
-		for (var e : BUILTINS.entrySet()) {
-			if (isEnabled("builtin:" + e.getKey())) {
-				pool.add(PlayTarget.builtin(e.getValue()));
+		for (String k : BUILTIN_KEYS) {
+			if (isEnabled("builtin:" + k)) {
+				SoundEvent ev = builtinEvent(k);
+				if (ev != null) pool.add(PlayTarget.builtin(ev));
 			}
 		}
 		for (String n : IMPORTED) {

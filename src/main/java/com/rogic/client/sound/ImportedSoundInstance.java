@@ -14,7 +14,7 @@ import net.minecraft.world.entity.Entity;
 /**
  * 导入音频的循环播放实例：绕过资源系统，直接从磁盘 config/laowu_meme/sounds/<名>.ogg 读取字节流，
  * 由 SoundBufferLibraryMixin 在 getStream 拦截 laowu_meme:sounds/imported/<hex名>.ogg 时提供 JOrbis 解码流。
- * 文件名经 SoundIdCodec hex 编码进 Identifier，规避 [a-z0-9/._-] 限制（中文/空格文件名曾导致崩溃）。
+ * 文件名经 SoundIdCodec hex 编码进 ResourceLocation，规避 [a-z0-9/._-] 限制（中文/空格文件名曾导致崩溃）。
  * 行为与 MemeSoundInstance 一致：循环、跟随两只猫中点、过远静音、猫消失即停。
  *
  * 关键坑（v1.1.19 崩溃根因）：AbstractSoundInstance 的 getVolume()/getPitch() 读的是超类
@@ -39,7 +39,7 @@ public class ImportedSoundInstance extends AbstractTickableSoundInstance {
 				true,   // stream：走 SoundBufferLibrary.getStream（被 mixin 拦截）
 				false,  // preload
 				16);    // 衰减距离
-		this.events = new WeighedSoundEvents(sound.getLocation(), null);
+		this.events = new WeighedSoundEvents(getLocation(), null);
 		this.events.addSound(sound);
 		this.catAId = catAId;
 		this.catBId = catBId;

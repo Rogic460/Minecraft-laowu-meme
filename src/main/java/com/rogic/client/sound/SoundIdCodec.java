@@ -3,10 +3,10 @@ package com.rogic.client.sound;
 import java.nio.charset.StandardCharsets;
 
 /**
- * 把导入音频的「真实文件名（可能含中文/空格）」编成合法的 Identifier path。
+ * 把导入音频的「真实文件名（可能含中文/空格）」编成合法的 ResourceLocation path。
  *
- * 背景：MC 的 Identifier 只允许 [a-z0-9/._-]，而用户导入的 .ogg 文件名常带中文/空格，
- * 直接塞进 Identifier 会抛 IdentifierException（v1.1.18 实测导致单人触发即网络协议错误断连）。
+ * 背景：MC 的 ResourceLocation 只允许 [a-z0-9/._-]，而用户导入的 .ogg 文件名常带中文/空格，
+ * 直接塞进 ResourceLocation 会抛 ResourceLocationException（v1.1.18 实测导致单人触发即网络协议错误断连）。
  * 这里用 UTF-8 的 hex 编码（只含 0-9a-f，必然合法），mixin 侧再解码回真名去磁盘读文件。
  */
 public final class SoundIdCodec {

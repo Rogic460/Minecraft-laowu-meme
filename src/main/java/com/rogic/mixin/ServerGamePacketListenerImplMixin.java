@@ -16,12 +16,12 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * 直接注入 handleInteract（右键实体包处理），绕开 Fabric UseEntityCallback 事件层。
- * 原因（2026-08-07 实测）：服务器装有 C2ME 等 mod，UseEntityCallback 事件完全不触发，
+ * 直接注入 handleInteract（右键实体包处理），绕开 NeoForge 右键事件层。
+ * 原因（2026-08-07 实测）：服务器装有 C2ME 等 mod，PlayerInteractEvent 事件不触发，
  * 但 handleInteract 是 vanilla 交互入口，必然被调用。在此检查：手持铲子右键猫 → 拍扁。
- * 双保险：UseEntityCallback 正常路径 + 本 mixin 兜底（只处理铲子，避免双触发）。
+ * 双保险：PlayerInteractEvent 正常路径 + 本 mixin 兜底（只处理铲子，避免双触发）。
  *
- * 1.21.1 API 差异（vs 26.1.2）：ServerboundInteractPacket 无 entityId()/hand()，
+ * 1.21.1 API：ServerboundInteractPacket 无 entityId()/hand()，
  * 改用 getTarget(ServerLevel) 拿实体、dispatch(Handler) 回调拿 InteractionHand（onInteraction 分支）。
  */
 @Mixin(ServerGamePacketListenerImpl.class)

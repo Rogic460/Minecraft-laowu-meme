@@ -97,7 +97,7 @@ org.gradle.java.home=<你的 JDK 25 路径>
 
 ```bash
 ./gradlew build
-# 产物：build/libs/laowu_meme-<版本>+26.2.jar（如 laowu_meme-1.3.0+26.2.jar）
+# 产物：build/libs/laowu_meme-<版本>+26.2+fabric.jar（如 laowu_meme-2.0.0+26.2+fabric.jar）
 ```
 
 ## 部署

@@ -1,0 +1,11 @@
+0000000000000000000000000000000000000000 ce0d839c2b6a3745458c8f66b7b6871d553d7e46 Rogic460 <Rogic460@users.noreply.github.com> 1786074091 +0800	branch: Created from HEAD
+ce0d839c2b6a3745458c8f66b7b6871d553d7e46 4bb4a900d585c025476dda2ffcb3b86548d78a3e Rogic460 <Rogic460@users.noreply.github.com> 1786082836 +0800	commit: feat(26.1.2neoforge): NeoForge 移植——构建配置 + 胶水层替换
+4bb4a900d585c025476dda2ffcb3b86548d78a3e 43a9cb5081e1e35d134cf0325dfe1acc2c0368da Rogic460 <Rogic460@users.noreply.github.com> 1786087636 +0800	commit: feat(26.1.2neoforge): NeoForge 移植完成——构建通过
+43a9cb5081e1e35d134cf0325dfe1acc2c0368da 9028546591ed7ef587c2a700301439af60bf4e80 Rogic460 <Rogic460@users.noreply.github.com> 1786088757 +0800	commit: feat(26.1.2neoforge): 配置界面 A 方案——NeoForge ModConfigSpec + Configured
+9028546591ed7ef587c2a700301439af60bf4e80 5f8b5410721db6116ece41fa8bc8c93effac2381 Rogic460 <Rogic460@users.noreply.github.com> 1786101079 +0800	commit: fix(26.1.2neoforge): neoforge.mods.toml 重复 config 键导致 'not a valid mod file'
+5f8b5410721db6116ece41fa8bc8c93effac2381 48a2eef6dde41886b1094ff0fe67e12c8d34413c Rogic460 <Rogic460@users.noreply.github.com> 1786101310 +0800	commit: fix(26.1.2neoforge): SoundEvent 注册冻结期报错——改用 DeferredRegister
+48a2eef6dde41886b1094ff0fe67e12c8d34413c 6a73359a81f816ffafbc70b0a3994de6dfff6a8c Rogic460 <Rogic460@users.noreply.github.com> 1786102077 +0800	commit: fix(26.1.2neoforge): 老吴音频不响——AudioPool 静态块提前捕获 null SoundEvent
+6a73359a81f816ffafbc70b0a3994de6dfff6a8c 80eb01c9770a0f4649d4db028290cb5733b15f0f Rogic460 <Rogic460@users.noreply.github.com> 1786102492 +0800	commit: fix(26.1.2neoforge): 补齐 qiliang/zhanhou.ogg + 配置改逐条 Boolean
+80eb01c9770a0f4649d4db028290cb5733b15f0f 1edcc85c77ecb0223fab9920a7ad58e1520af689 Rogic460 <Rogic460@users.noreply.github.com> 1786103129 +0800	commit: feat(26.1.2neoforge): 自绘配置界面（中文 + 导入音频可见）+ 自动创建导入文件夹
+1edcc85c77ecb0223fab9920a7ad58e1520af689 2985cde84332d64bc787935cca1260706990190b Rogic460 <Rogic460@users.noreply.github.com> 1786103579 +0800	commit: fix(26.1.2neoforge): 配置勾选后崩溃——去掉渲染线程 SPEC.save() 同步文件 IO
+2985cde84332d64bc787935cca1260706990190b 340be34b32c02ff70b1cf9dd43bbc4899a08996f Rogic460 <Rogic460@users.noreply.github.com> 1786103959 +0800	commit: chore(26.1.2neoforge): jar 命名 [neoforge] → +neoforge（GitHub 资产名不支持 []）

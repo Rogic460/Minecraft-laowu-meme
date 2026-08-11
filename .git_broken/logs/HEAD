@@ -1,0 +1,62 @@
+0000000000000000000000000000000000000000 107d2716fa1070a5ab91fa2ca53435753d2129df ogic R <27868@ROGIC.(none)> 1785830697 +0800	clone: from https://github.com/Rogic460/Minecraft-laowu-meme.git
+107d2716fa1070a5ab91fa2ca53435753d2129df cd01a8bc83c92f7d65d7abf57d2c0fd369459157 ogic R <27868@ROGIC.(none)> 1785830732 +0800	checkout: moving from 26.1.2fabric to 26.2fabric
+cd01a8bc83c92f7d65d7abf57d2c0fd369459157 cd01a8bc83c92f7d65d7abf57d2c0fd369459157 Rogic460 <Rogic460@users.noreply.github.com> 1785830895 +0800	reset: moving to origin/26.2fabric
+cd01a8bc83c92f7d65d7abf57d2c0fd369459157 f0d8df8fad4cc504e80ac627b620b7e14e2a5a20 Rogic460 <Rogic460@users.noreply.github.com> 1785831705 +0800	commit: feat(1.3.0): 26.2 分支同步耄耋结构 1.3.0（任意木系 + 4 向旋转 + README 实拍图）
+f0d8df8fad4cc504e80ac627b620b7e14e2a5a20 66363fcdf6cabbdf058e193c0fd8d0d51456ba53 Rogic460 <Rogic460@users.noreply.github.com> 1785832033 +0800	commit: docs: 26.2 分支 README 修正为 26.2 版本信息（首行/产物名/版本列表）
+66363fcdf6cabbdf058e193c0fd8d0d51456ba53 623b6517fd529cd8e7675282466fff0a0037ff32 Rogic460 <Rogic460@users.noreply.github.com> 1785848877 +0800	commit: docs: 仓库新增耄耋结构 Litematica 投影（docs/耄耋的家.litematic），README 搭建章节加懒人方案说明
+623b6517fd529cd8e7675282466fff0a0037ff32 107d2716fa1070a5ab91fa2ca53435753d2129df Rogic460 <Rogic460@users.noreply.github.com> 1785848901 +0800	checkout: moving from 26.2fabric to 26.1.2fabric
+107d2716fa1070a5ab91fa2ca53435753d2129df 20246c36eebdc8baf618161b85608cd4dd746ffc Rogic460 <Rogic460@users.noreply.github.com> 1785848945 +0800	commit: docs: 仓库新增耄耋结构 Litematica 投影（docs/耄耋的家.litematic），README 搭建章节加懒人方案说明
+20246c36eebdc8baf618161b85608cd4dd746ffc 57528861ee01d01cdef50f043a8f98211b69c40e Rogic460 <Rogic460@users.noreply.github.com> 1785899275 +0800	checkout: moving from 26.1.2fabric to 1.21.11fabric
+57528861ee01d01cdef50f043a8f98211b69c40e 3efe465e9085a6df7810e14d4006df099f282b97 Rogic460 <Rogic460@users.noreply.github.com> 1785911574 +0800	commit: feat(1.3.0): 1.21.11 分支同步耄耋结构 1.3.0（任意木系 + 4 向旋转 + 换皮 + 投影）
+3efe465e9085a6df7810e14d4006df099f282b97 276ea8588cf091f87988614567bc92f27b3e0418 Rogic460 <Rogic460@users.noreply.github.com> 1785912164 +0800	commit: fix(1.21.11): 命名耄耋换皮黑紫——1.21.x 原版贴图路径无 cat_ 前缀
+276ea8588cf091f87988614567bc92f27b3e0418 c445cfdde10b6bb0e8d7c7b48c15213a44158bfb Rogic460 <Rogic460@users.noreply.github.com> 1785912554 +0800	commit: fix(1.21.11): 换皮路径再修复——1.21.11 原版 texture path 带 textures/ 前缀
+c445cfdde10b6bb0e8d7c7b48c15213a44158bfb 1c9bd206e4be181ea4166f8decf65512ad9284d4 Rogic460 <Rogic460@users.noreply.github.com> 1785913505 +0800	commit: docs: 1.21.11 README 构建说明改 JDK 21（26.x 才需要 JDK 25）
+1c9bd206e4be181ea4166f8decf65512ad9284d4 4df4cac312d856fd0eed3524849d548c13f2350e Rogic460 <Rogic460@users.noreply.github.com> 1785944278 +0800	checkout: moving from 1.21.11fabric to 1.21.1fabric
+4df4cac312d856fd0eed3524849d548c13f2350e abd0f475e809bcb1a6d2521f812c959c85b08ee0 Rogic460 <Rogic460@users.noreply.github.com> 1785946496 +0800	commit: feat(1.3.0): 1.21.0+1.21.1 分支同步耄耋结构 1.3.0（经典管线适配）
+abd0f475e809bcb1a6d2521f812c959c85b08ee0 a16058850228d07dbbb4c2b29823d54a5594b20d Rogic460 <Rogic460@users.noreply.github.com> 1785947807 +0800	commit: fix(1.21.0/1.21.1): 两个实测 BUG——猫不坐下 + 换皮贴图报错
+a16058850228d07dbbb4c2b29823d54a5594b20d 2fc42348f881fa6a4848c51cdcc275dd8616f6de Rogic460 <Rogic460@users.noreply.github.com> 1785978306 +0800	commit: fix(1.21.0/1.21.1): 再修两 BUG——猫跳跃 + 换皮黑紫（日志实证）
+2fc42348f881fa6a4848c51cdcc275dd8616f6de ad75c47dc8314c4ef21b073ab383dc8cf26ce7e9 Rogic460 <Rogic460@users.noreply.github.com> 1785979187 +0800	commit: fix(1.21.0/1.21.1): 换皮黑紫根因——1.21.1 CatVariant 路径带 textures/ 前缀+ .png 后缀
+ad75c47dc8314c4ef21b073ab383dc8cf26ce7e9 6f4cc09576d29854f146b558fb762b6f959288c8 Rogic460 <Rogic460@users.noreply.github.com> 1785982052 +0800	commit: fix(1.21.0/1.21.1): 换皮黑紫——保留 .png 后缀，与原版 Identifier 格式完全一致
+6f4cc09576d29854f146b558fb762b6f959288c8 d658127f5947316234131f6fd93a6de0392a5780 Rogic460 <Rogic460@users.noreply.github.com> 1785982187 +0800	commit: fix(1.21.0/1.21.1): 换皮双保险——保留 .png + 贴图双目录
+d658127f5947316234131f6fd93a6de0392a5780 20246c36eebdc8baf618161b85608cd4dd746ffc Rogic460 <Rogic460@users.noreply.github.com> 1785983619 +0800	checkout: moving from 1.21.1fabric to 26.1.2fabric
+20246c36eebdc8baf618161b85608cd4dd746ffc 996c30e295742ca6f44e0964e6b1133264e093bc Rogic460 <Rogic460@users.noreply.github.com> 1786000177 +0800	commit: feat: 铲子拍扁（服务端权威，8秒自动恢复）
+996c30e295742ca6f44e0964e6b1133264e093bc 469df99718648244ef30ebaf8046a5c7700910e9 Rogic460 <Rogic460@users.noreply.github.com> 1786065393 +0800	commit: debug: onRightClick 加诊断日志（拍扁不触发排查）
+469df99718648244ef30ebaf8046a5c7700910e9 9159092158eccff71b06037dcc7248d42a4a678a Rogic460 <Rogic460@users.noreply.github.com> 1786066204 +0800	commit: fix(26.1.2): 铲子拍扁改用 mixin 注入 handleInteract，绕开失效的 UseEntityCallback
+9159092158eccff71b06037dcc7248d42a4a678a 1b8556b6530687939e2cf127596d92ad65edf3d9 Rogic460 <Rogic460@users.noreply.github.com> 1786066669 +0800	commit: fix(26.1.2): 拍扁瞬回——客户端线程污染时间戳
+1b8556b6530687939e2cf127596d92ad65edf3d9 43ac456527280deabb6a454741467a7e64e7e3f0 Rogic460 <Rogic460@users.noreply.github.com> 1786067029 +0800	commit: feat(26.1.2): 拍扁效果升级——'干'字形 + 再扁一半
+43ac456527280deabb6a454741467a7e64e7e3f0 07b8f380d6bc1fdeb778865045fdd3fc04e4e6d8 Rogic460 <Rogic460@users.noreply.github.com> 1786067309 +0800	commit: feat(26.1.2): 拍扁四肢改 X 形（对角交叉）
+07b8f380d6bc1fdeb778865045fdd3fc04e4e6d8 5c86a98661c051adb456f77421fcfab4f1c0cb2f Rogic460 <Rogic460@users.noreply.github.com> 1786067572 +0800	commit: fix(26.1.2): 拍扁四肢改 zRot（绕 Z 轴左右张开）成 X 形
+5c86a98661c051adb456f77421fcfab4f1c0cb2f 06359c478c8600e12aa2f145fec31c4c480678e8 Rogic460 <Rogic460@users.noreply.github.com> 1786068073 +0800	commit: feat(26.1.2): 哈气蜷缩（A 方案：组合姿态伪蜷缩）
+06359c478c8600e12aa2f145fec31c4c480678e8 028b1cde7b0a5c2084cfb0e135328aaf849fab90 Rogic460 <Rogic460@users.noreply.github.com> 1786068599 +0800	commit: feat(26.1.2): 哈气蜷缩 B 方案——多段身体逐段弯曲
+028b1cde7b0a5c2084cfb0e135328aaf849fab90 8cbc09cd3d79b028086201aa779b6e758b037139 Rogic460 <Rogic460@users.noreply.github.com> 1786070603 +0800	commit: feat(26.1.2): 蜷缩调参——参考别人猫哈气图大幅加大三段弯曲
+8cbc09cd3d79b028086201aa779b6e758b037139 25f3e5adcc4cfc5a88cb6e1bff4350c3012eeb88 Rogic460 <Rogic460@users.noreply.github.com> 1786071200 +0800	commit: fix(26.1.2): B 方案畸形回退——去掉 body_mid/body_front 子段
+25f3e5adcc4cfc5a88cb6e1bff4350c3012eeb88 3bc96b972291606d20524c7f0947a4e71030d85e Rogic460 <Rogic460@users.noreply.github.com> 1786071655 +0800	commit: feat(26.1.2): 哈气蜷缩 B v2——多段关节模型（mixin bakeLayer）
+3bc96b972291606d20524c7f0947a4e71030d85e a559cb1ebd7719e73dba87aac0d666ce57176910 Rogic460 <Rogic460@users.noreply.github.com> 1786071942 +0800	commit: fix(26.1.2): B v3 多段——回 createBodyMesh 注入，部件不丢
+a559cb1ebd7719e73dba87aac0d666ce57176910 9665a9ee1434fa124601c94edde54c4e4d56a92c Rogic460 <Rogic460@users.noreply.github.com> 1786072180 +0800	commit: revert(26.1.2): 回退到拍扁成功版（5c86a98 干字形拍扁）
+9665a9ee1434fa124601c94edde54c4e4d56a92c a559cb1ebd7719e73dba87aac0d666ce57176910 Rogic460 <Rogic460@users.noreply.github.com> 1786072260 +0800	reset: moving to a559cb1
+a559cb1ebd7719e73dba87aac0d666ce57176910 918ba4d176c6840ec7145ca74324f422c0244d0f Rogic460 <Rogic460@users.noreply.github.com> 1786072390 +0800	commit: revert(26.1.2): 回退到拍扁成功版（5c86a98 干字形拍扁）
+918ba4d176c6840ec7145ca74324f422c0244d0f 43acd8f8c196c3bd37de53323bf4e76d2db1a3e2 Rogic460 <Rogic460@users.noreply.github.com> 1786072989 +0800	commit: feat(26.1.2): 奶猫命名换皮 + 2.0.0
+43acd8f8c196c3bd37de53323bf4e76d2db1a3e2 6ca027126a4a07118dac70ce35bf4e2d92bb72b5 Rogic460 <Rogic460@users.noreply.github.com> 1786073238 +0800	commit: fix(26.1.2): 奶猫黑紫——Identifier 补 textures/ 前缀 + .png 后缀
+6ca027126a4a07118dac70ce35bf4e2d92bb72b5 ce0d839c2b6a3745458c8f66b7b6871d553d7e46 Rogic460 <Rogic460@users.noreply.github.com> 1786073460 +0800	commit: docs(26.1.2): README 加奶猫换皮 + 铲子拍扁章节，版本 2.0.0
+ce0d839c2b6a3745458c8f66b7b6871d553d7e46 ce0d839c2b6a3745458c8f66b7b6871d553d7e46 Rogic460 <Rogic460@users.noreply.github.com> 1786074091 +0800	checkout: moving from 26.1.2fabric to 26.1.2neoforge
+ce0d839c2b6a3745458c8f66b7b6871d553d7e46 4bb4a900d585c025476dda2ffcb3b86548d78a3e Rogic460 <Rogic460@users.noreply.github.com> 1786082836 +0800	commit: feat(26.1.2neoforge): NeoForge 移植——构建配置 + 胶水层替换
+4bb4a900d585c025476dda2ffcb3b86548d78a3e 4bb4a900d585c025476dda2ffcb3b86548d78a3e Rogic460 <Rogic460@users.noreply.github.com> 1786087628 +0800	reset: moving to HEAD
+4bb4a900d585c025476dda2ffcb3b86548d78a3e 43a9cb5081e1e35d134cf0325dfe1acc2c0368da Rogic460 <Rogic460@users.noreply.github.com> 1786087636 +0800	commit: feat(26.1.2neoforge): NeoForge 移植完成——构建通过
+43a9cb5081e1e35d134cf0325dfe1acc2c0368da 9028546591ed7ef587c2a700301439af60bf4e80 Rogic460 <Rogic460@users.noreply.github.com> 1786088757 +0800	commit: feat(26.1.2neoforge): 配置界面 A 方案——NeoForge ModConfigSpec + Configured
+9028546591ed7ef587c2a700301439af60bf4e80 ce0d839c2b6a3745458c8f66b7b6871d553d7e46 Rogic460 <Rogic460@users.noreply.github.com> 1786088860 +0800	checkout: moving from 26.1.2neoforge to 26.1.2fabric
+ce0d839c2b6a3745458c8f66b7b6871d553d7e46 a9744937628c7e40bda8289cc8683bc6e02f95f5 Rogic460 <Rogic460@users.noreply.github.com> 1786089045 +0800	commit: chore(26.1.2fabric): jar 命名加 [fabric] 后缀与 NeoForge 区分
+a9744937628c7e40bda8289cc8683bc6e02f95f5 9028546591ed7ef587c2a700301439af60bf4e80 Rogic460 <Rogic460@users.noreply.github.com> 1786100955 +0800	checkout: moving from 26.1.2fabric to 26.1.2neoforge
+9028546591ed7ef587c2a700301439af60bf4e80 5f8b5410721db6116ece41fa8bc8c93effac2381 Rogic460 <Rogic460@users.noreply.github.com> 1786101079 +0800	commit: fix(26.1.2neoforge): neoforge.mods.toml 重复 config 键导致 'not a valid mod file'
+5f8b5410721db6116ece41fa8bc8c93effac2381 48a2eef6dde41886b1094ff0fe67e12c8d34413c Rogic460 <Rogic460@users.noreply.github.com> 1786101310 +0800	commit: fix(26.1.2neoforge): SoundEvent 注册冻结期报错——改用 DeferredRegister
+48a2eef6dde41886b1094ff0fe67e12c8d34413c 6a73359a81f816ffafbc70b0a3994de6dfff6a8c Rogic460 <Rogic460@users.noreply.github.com> 1786102077 +0800	commit: fix(26.1.2neoforge): 老吴音频不响——AudioPool 静态块提前捕获 null SoundEvent
+6a73359a81f816ffafbc70b0a3994de6dfff6a8c 80eb01c9770a0f4649d4db028290cb5733b15f0f Rogic460 <Rogic460@users.noreply.github.com> 1786102492 +0800	commit: fix(26.1.2neoforge): 补齐 qiliang/zhanhou.ogg + 配置改逐条 Boolean
+80eb01c9770a0f4649d4db028290cb5733b15f0f 1edcc85c77ecb0223fab9920a7ad58e1520af689 Rogic460 <Rogic460@users.noreply.github.com> 1786103129 +0800	commit: feat(26.1.2neoforge): 自绘配置界面（中文 + 导入音频可见）+ 自动创建导入文件夹
+1edcc85c77ecb0223fab9920a7ad58e1520af689 a9744937628c7e40bda8289cc8683bc6e02f95f5 Rogic460 <Rogic460@users.noreply.github.com> 1786103147 +0800	checkout: moving from 26.1.2neoforge to 26.1.2fabric
+a9744937628c7e40bda8289cc8683bc6e02f95f5 1edcc85c77ecb0223fab9920a7ad58e1520af689 Rogic460 <Rogic460@users.noreply.github.com> 1786103518 +0800	checkout: moving from 26.1.2fabric to 26.1.2neoforge
+1edcc85c77ecb0223fab9920a7ad58e1520af689 2985cde84332d64bc787935cca1260706990190b Rogic460 <Rogic460@users.noreply.github.com> 1786103579 +0800	commit: fix(26.1.2neoforge): 配置勾选后崩溃——去掉渲染线程 SPEC.save() 同步文件 IO
+2985cde84332d64bc787935cca1260706990190b a9744937628c7e40bda8289cc8683bc6e02f95f5 Rogic460 <Rogic460@users.noreply.github.com> 1786103925 +0800	checkout: moving from 26.1.2neoforge to 26.1.2fabric
+a9744937628c7e40bda8289cc8683bc6e02f95f5 61c4e120ef54381330eda6e7998582c803c45bf1 Rogic460 <Rogic460@users.noreply.github.com> 1786103943 +0800	commit: chore(26.1.2fabric): jar 命名 [fabric] → +fabric（GitHub 资产名不支持 []）
+61c4e120ef54381330eda6e7998582c803c45bf1 2985cde84332d64bc787935cca1260706990190b Rogic460 <Rogic460@users.noreply.github.com> 1786103953 +0800	checkout: moving from 26.1.2fabric to 26.1.2neoforge
+2985cde84332d64bc787935cca1260706990190b 340be34b32c02ff70b1cf9dd43bbc4899a08996f Rogic460 <Rogic460@users.noreply.github.com> 1786103959 +0800	commit: chore(26.1.2neoforge): jar 命名 [neoforge] → +neoforge（GitHub 资产名不支持 []）
+340be34b32c02ff70b1cf9dd43bbc4899a08996f 340be34b32c02ff70b1cf9dd43bbc4899a08996f Rogic460 <Rogic460@users.noreply.github.com> 1786104675 +0800	checkout: moving from 26.1.2neoforge to 26.1.2neoforge
+340be34b32c02ff70b1cf9dd43bbc4899a08996f 61c4e120ef54381330eda6e7998582c803c45bf1 Rogic460 <Rogic460@users.noreply.github.com> 1786108425 +0800	checkout: moving from 26.1.2neoforge to 26.1.2fabric

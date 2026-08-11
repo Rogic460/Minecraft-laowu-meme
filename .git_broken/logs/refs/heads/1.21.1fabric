@@ -1,0 +1,7 @@
+0000000000000000000000000000000000000000 4df4cac312d856fd0eed3524849d548c13f2350e Rogic460 <Rogic460@users.noreply.github.com> 1785944278 +0800	branch: Created from refs/remotes/origin/1.21.1fabric
+4df4cac312d856fd0eed3524849d548c13f2350e abd0f475e809bcb1a6d2521f812c959c85b08ee0 Rogic460 <Rogic460@users.noreply.github.com> 1785946496 +0800	commit: feat(1.3.0): 1.21.0+1.21.1 分支同步耄耋结构 1.3.0（经典管线适配）
+abd0f475e809bcb1a6d2521f812c959c85b08ee0 a16058850228d07dbbb4c2b29823d54a5594b20d Rogic460 <Rogic460@users.noreply.github.com> 1785947807 +0800	commit: fix(1.21.0/1.21.1): 两个实测 BUG——猫不坐下 + 换皮贴图报错
+a16058850228d07dbbb4c2b29823d54a5594b20d 2fc42348f881fa6a4848c51cdcc275dd8616f6de Rogic460 <Rogic460@users.noreply.github.com> 1785978306 +0800	commit: fix(1.21.0/1.21.1): 再修两 BUG——猫跳跃 + 换皮黑紫（日志实证）
+2fc42348f881fa6a4848c51cdcc275dd8616f6de ad75c47dc8314c4ef21b073ab383dc8cf26ce7e9 Rogic460 <Rogic460@users.noreply.github.com> 1785979187 +0800	commit: fix(1.21.0/1.21.1): 换皮黑紫根因——1.21.1 CatVariant 路径带 textures/ 前缀+ .png 后缀
+ad75c47dc8314c4ef21b073ab383dc8cf26ce7e9 6f4cc09576d29854f146b558fb762b6f959288c8 Rogic460 <Rogic460@users.noreply.github.com> 1785982052 +0800	commit: fix(1.21.0/1.21.1): 换皮黑紫——保留 .png 后缀，与原版 Identifier 格式完全一致
+6f4cc09576d29854f146b558fb762b6f959288c8 d658127f5947316234131f6fd93a6de0392a5780 Rogic460 <Rogic460@users.noreply.github.com> 1785982187 +0800	commit: fix(1.21.0/1.21.1): 换皮双保险——保留 .png + 贴图双目录

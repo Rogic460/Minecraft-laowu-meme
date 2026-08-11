@@ -1,0 +1,4 @@
+0000000000000000000000000000000000000000 cd01a8bc83c92f7d65d7abf57d2c0fd369459157 ogic R <27868@ROGIC.(none)> 1785830732 +0800	branch: Created from refs/remotes/origin/26.2fabric
+cd01a8bc83c92f7d65d7abf57d2c0fd369459157 f0d8df8fad4cc504e80ac627b620b7e14e2a5a20 Rogic460 <Rogic460@users.noreply.github.com> 1785831705 +0800	commit: feat(1.3.0): 26.2 分支同步耄耋结构 1.3.0（任意木系 + 4 向旋转 + README 实拍图）
+f0d8df8fad4cc504e80ac627b620b7e14e2a5a20 66363fcdf6cabbdf058e193c0fd8d0d51456ba53 Rogic460 <Rogic460@users.noreply.github.com> 1785832033 +0800	commit: docs: 26.2 分支 README 修正为 26.2 版本信息（首行/产物名/版本列表）
+66363fcdf6cabbdf058e193c0fd8d0d51456ba53 623b6517fd529cd8e7675282466fff0a0037ff32 Rogic460 <Rogic460@users.noreply.github.com> 1785848877 +0800	commit: docs: 仓库新增耄耋结构 Litematica 投影（docs/耄耋的家.litematic），README 搭建章节加懒人方案说明

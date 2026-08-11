@@ -1,0 +1,24 @@
+[core]
+	repositoryformatversion = 0
+	filemode = false
+	bare = false
+	logallrefupdates = true
+	ignorecase = true
+[remote "origin"]
+	url = https://github.com/Rogic460/Minecraft-laowu-meme.git
+	fetch = +refs/heads/*:refs/remotes/origin/*
+[branch "26.1.2fabric"]
+	remote = origin
+	merge = refs/heads/26.1.2fabric
+[branch "26.2fabric"]
+	remote = origin
+	merge = refs/heads/26.2fabric
+[user]
+	name = Rogic460
+	email = Rogic460@users.noreply.github.com
+[branch "1.21.11fabric"]
+	remote = origin
+	merge = refs/heads/1.21.11fabric
+[branch "1.21.1fabric"]
+	remote = origin
+	merge = refs/heads/1.21.1fabric

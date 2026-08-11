@@ -1,0 +1,5 @@
+0000000000000000000000000000000000000000 57528861ee01d01cdef50f043a8f98211b69c40e Rogic460 <Rogic460@users.noreply.github.com> 1785899275 +0800	branch: Created from refs/remotes/origin/1.21.11fabric
+57528861ee01d01cdef50f043a8f98211b69c40e 3efe465e9085a6df7810e14d4006df099f282b97 Rogic460 <Rogic460@users.noreply.github.com> 1785911574 +0800	commit: feat(1.3.0): 1.21.11 分支同步耄耋结构 1.3.0（任意木系 + 4 向旋转 + 换皮 + 投影）
+3efe465e9085a6df7810e14d4006df099f282b97 276ea8588cf091f87988614567bc92f27b3e0418 Rogic460 <Rogic460@users.noreply.github.com> 1785912164 +0800	commit: fix(1.21.11): 命名耄耋换皮黑紫——1.21.x 原版贴图路径无 cat_ 前缀
+276ea8588cf091f87988614567bc92f27b3e0418 c445cfdde10b6bb0e8d7c7b48c15213a44158bfb Rogic460 <Rogic460@users.noreply.github.com> 1785912554 +0800	commit: fix(1.21.11): 换皮路径再修复——1.21.11 原版 texture path 带 textures/ 前缀
+c445cfdde10b6bb0e8d7c7b48c15213a44158bfb 1c9bd206e4be181ea4166f8decf65512ad9284d4 Rogic460 <Rogic460@users.noreply.github.com> 1785913505 +0800	commit: docs: 1.21.11 README 构建说明改 JDK 21（26.x 才需要 JDK 25）

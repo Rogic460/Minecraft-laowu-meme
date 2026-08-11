@@ -1,0 +1,23 @@
+0000000000000000000000000000000000000000 107d2716fa1070a5ab91fa2ca53435753d2129df ogic R <27868@ROGIC.(none)> 1785830697 +0800	clone: from https://github.com/Rogic460/Minecraft-laowu-meme.git
+107d2716fa1070a5ab91fa2ca53435753d2129df 20246c36eebdc8baf618161b85608cd4dd746ffc Rogic460 <Rogic460@users.noreply.github.com> 1785848945 +0800	commit: docs: 仓库新增耄耋结构 Litematica 投影（docs/耄耋的家.litematic），README 搭建章节加懒人方案说明
+20246c36eebdc8baf618161b85608cd4dd746ffc 996c30e295742ca6f44e0964e6b1133264e093bc Rogic460 <Rogic460@users.noreply.github.com> 1786000177 +0800	commit: feat: 铲子拍扁（服务端权威，8秒自动恢复）
+996c30e295742ca6f44e0964e6b1133264e093bc 469df99718648244ef30ebaf8046a5c7700910e9 Rogic460 <Rogic460@users.noreply.github.com> 1786065393 +0800	commit: debug: onRightClick 加诊断日志（拍扁不触发排查）
+469df99718648244ef30ebaf8046a5c7700910e9 9159092158eccff71b06037dcc7248d42a4a678a Rogic460 <Rogic460@users.noreply.github.com> 1786066204 +0800	commit: fix(26.1.2): 铲子拍扁改用 mixin 注入 handleInteract，绕开失效的 UseEntityCallback
+9159092158eccff71b06037dcc7248d42a4a678a 1b8556b6530687939e2cf127596d92ad65edf3d9 Rogic460 <Rogic460@users.noreply.github.com> 1786066669 +0800	commit: fix(26.1.2): 拍扁瞬回——客户端线程污染时间戳
+1b8556b6530687939e2cf127596d92ad65edf3d9 43ac456527280deabb6a454741467a7e64e7e3f0 Rogic460 <Rogic460@users.noreply.github.com> 1786067029 +0800	commit: feat(26.1.2): 拍扁效果升级——'干'字形 + 再扁一半
+43ac456527280deabb6a454741467a7e64e7e3f0 07b8f380d6bc1fdeb778865045fdd3fc04e4e6d8 Rogic460 <Rogic460@users.noreply.github.com> 1786067309 +0800	commit: feat(26.1.2): 拍扁四肢改 X 形（对角交叉）
+07b8f380d6bc1fdeb778865045fdd3fc04e4e6d8 5c86a98661c051adb456f77421fcfab4f1c0cb2f Rogic460 <Rogic460@users.noreply.github.com> 1786067572 +0800	commit: fix(26.1.2): 拍扁四肢改 zRot（绕 Z 轴左右张开）成 X 形
+5c86a98661c051adb456f77421fcfab4f1c0cb2f 06359c478c8600e12aa2f145fec31c4c480678e8 Rogic460 <Rogic460@users.noreply.github.com> 1786068073 +0800	commit: feat(26.1.2): 哈气蜷缩（A 方案：组合姿态伪蜷缩）
+06359c478c8600e12aa2f145fec31c4c480678e8 028b1cde7b0a5c2084cfb0e135328aaf849fab90 Rogic460 <Rogic460@users.noreply.github.com> 1786068599 +0800	commit: feat(26.1.2): 哈气蜷缩 B 方案——多段身体逐段弯曲
+028b1cde7b0a5c2084cfb0e135328aaf849fab90 8cbc09cd3d79b028086201aa779b6e758b037139 Rogic460 <Rogic460@users.noreply.github.com> 1786070603 +0800	commit: feat(26.1.2): 蜷缩调参——参考别人猫哈气图大幅加大三段弯曲
+8cbc09cd3d79b028086201aa779b6e758b037139 25f3e5adcc4cfc5a88cb6e1bff4350c3012eeb88 Rogic460 <Rogic460@users.noreply.github.com> 1786071200 +0800	commit: fix(26.1.2): B 方案畸形回退——去掉 body_mid/body_front 子段
+25f3e5adcc4cfc5a88cb6e1bff4350c3012eeb88 3bc96b972291606d20524c7f0947a4e71030d85e Rogic460 <Rogic460@users.noreply.github.com> 1786071655 +0800	commit: feat(26.1.2): 哈气蜷缩 B v2——多段关节模型（mixin bakeLayer）
+3bc96b972291606d20524c7f0947a4e71030d85e a559cb1ebd7719e73dba87aac0d666ce57176910 Rogic460 <Rogic460@users.noreply.github.com> 1786071942 +0800	commit: fix(26.1.2): B v3 多段——回 createBodyMesh 注入，部件不丢
+a559cb1ebd7719e73dba87aac0d666ce57176910 9665a9ee1434fa124601c94edde54c4e4d56a92c Rogic460 <Rogic460@users.noreply.github.com> 1786072180 +0800	commit: revert(26.1.2): 回退到拍扁成功版（5c86a98 干字形拍扁）
+9665a9ee1434fa124601c94edde54c4e4d56a92c a559cb1ebd7719e73dba87aac0d666ce57176910 Rogic460 <Rogic460@users.noreply.github.com> 1786072260 +0800	reset: moving to a559cb1
+a559cb1ebd7719e73dba87aac0d666ce57176910 918ba4d176c6840ec7145ca74324f422c0244d0f Rogic460 <Rogic460@users.noreply.github.com> 1786072390 +0800	commit: revert(26.1.2): 回退到拍扁成功版（5c86a98 干字形拍扁）
+918ba4d176c6840ec7145ca74324f422c0244d0f 43acd8f8c196c3bd37de53323bf4e76d2db1a3e2 Rogic460 <Rogic460@users.noreply.github.com> 1786072989 +0800	commit: feat(26.1.2): 奶猫命名换皮 + 2.0.0
+43acd8f8c196c3bd37de53323bf4e76d2db1a3e2 6ca027126a4a07118dac70ce35bf4e2d92bb72b5 Rogic460 <Rogic460@users.noreply.github.com> 1786073238 +0800	commit: fix(26.1.2): 奶猫黑紫——Identifier 补 textures/ 前缀 + .png 后缀
+6ca027126a4a07118dac70ce35bf4e2d92bb72b5 ce0d839c2b6a3745458c8f66b7b6871d553d7e46 Rogic460 <Rogic460@users.noreply.github.com> 1786073460 +0800	commit: docs(26.1.2): README 加奶猫换皮 + 铲子拍扁章节，版本 2.0.0
+ce0d839c2b6a3745458c8f66b7b6871d553d7e46 a9744937628c7e40bda8289cc8683bc6e02f95f5 Rogic460 <Rogic460@users.noreply.github.com> 1786089045 +0800	commit: chore(26.1.2fabric): jar 命名加 [fabric] 后缀与 NeoForge 区分
+a9744937628c7e40bda8289cc8683bc6e02f95f5 61c4e120ef54381330eda6e7998582c803c45bf1 Rogic460 <Rogic460@users.noreply.github.com> 1786103943 +0800	commit: chore(26.1.2fabric): jar 命名 [fabric] → +fabric（GitHub 资产名不支持 []）

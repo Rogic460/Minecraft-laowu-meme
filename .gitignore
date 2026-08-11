@@ -41,3 +41,4 @@ replay_*.log
 
 # 音频（不公开）
 src/main/resources/assets/laowu_meme/sounds/*.ogg
+.git_broken

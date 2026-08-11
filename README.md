@@ -1,8 +1,8 @@
 # laowu meme
 
-Minecraft 26.1.2 Fabric 整活 mod（本分支 `26.1.2fabric`；其他 MC 版本见 `26.2fabric` / `1.21.11fabric` / `1.21.1fabric` 分支）。
+Minecraft 1.21.11 NeoForge 整活 mod（本分支 `1.21.11neoforge`；其他 MC 版本见 `26.1.2fabric` / `26.1.2neoforge` / `26.2fabric` / `26.2neoforge` / `1.21.11fabric` / `1.21.1fabric` / `1.21.1neoforge` / `1.21neoforge` 分支）。
 
-一只命名为「老吴」的猫和任意一只猫靠近时，会头对头歪头旋转、体型放大、并随机播放两种 BGM；右键其中一只猫即可打断，两只猫自然走开。支持单人与多人，多人下服务端权威同步、所有玩家看到的效果完全一致。
+需要 JDK 21（本分支用 Mojang 官方映射 mojmap 构建，Gradle JVM 用 JDK 25、`options.release=21` 交叉编译到 21；运行时需 Java 21）。
 
 ## 效果
 
@@ -96,7 +96,7 @@ y\x    0     1     2     3     4     5
 
 ## 构建
 
-需要 JDK 25（Minecraft 26.1 是首个不混淆版本，开发强制要求 Java 25）。
+需要 JDK 21（toolchain）；Gradle JVM 可用 JDK 25 或 JDK 21。
 
 在本机 `~/.gradle/gradle.properties` 配置：
 ```
@@ -105,7 +105,7 @@ org.gradle.java.home=<你的 JDK 25 路径>
 
 ```bash
 ./gradlew build
-# 产物：build/libs/laowu_meme-<版本>+26.1.2.jar（如 laowu_meme-1.2.0+26.1.2.jar）
+# 产物：build/libs/laowu_meme-<版本>+1.21.11+neoforge.jar（如 laowu_meme-2.0.0+1.21.11+neoforge.jar）
 ```
 
 ## 部署
@@ -115,10 +115,9 @@ org.gradle.java.home=<你的 JDK 25 路径>
 ## 版本
 
 - 当前 mod 版本：2.0.0
-- Minecraft 26.1.2
-- Fabric Loader 0.19.2
-- Fabric API 0.152.1+26.1.2
-- Java 25 / Gradle 9.5.1 / Loom 1.17-SNAPSHOT
+- Minecraft 1.21.11
+- NeoForge 21.11.45+
+- Java 21 / Gradle 9.5.1 / NeoGradle 7.1.38
 
 ## 音频
 

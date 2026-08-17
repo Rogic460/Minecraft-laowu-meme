@@ -49,19 +49,19 @@ public class LaowuMemeMod {
 		var registrar = event.registrar(LaowuMemeMod.MOD_ID);
 		registrar.playToClient(MemeTriggerS2CPacket.TYPE, MemeTriggerS2CPacket.CODEC,
 				(payload, context) -> context.enqueueWork(() -> {
-					if (FMLEnvironment.dist.isClient()) {
+					if (FMLEnvironment.getDist().isClient()) {
 						com.rogic.client.ClientMemeState.get().onTrigger(payload.catAId(), payload.catBId(), payload.soundId(), payload.rollSign());
 					}
 				}));
 		registrar.playToClient(MemeStopS2CPacket.TYPE, MemeStopS2CPacket.CODEC,
 				(payload, context) -> context.enqueueWork(() -> {
-					if (FMLEnvironment.dist.isClient()) {
+					if (FMLEnvironment.getDist().isClient()) {
 						com.rogic.client.ClientMemeState.get().onStop(payload.catAId(), payload.catBId());
 					}
 				}));
 		registrar.playToClient(MaodieS2CPacket.TYPE, MaodieS2CPacket.CODEC,
 				(payload, context) -> context.enqueueWork(() -> {
-					if (FMLEnvironment.dist.isClient()) {
+					if (FMLEnvironment.getDist().isClient()) {
 						if (payload.bound()) {
 							com.rogic.client.ClientMemeState.get().onMaodieBind(payload.catId());
 							LaowuMemeMod.LOGGER.info("[maodie] 收到绑定包 catId={}", payload.catId());
@@ -73,7 +73,7 @@ public class LaowuMemeMod {
 				}));
 		registrar.playToClient(FlatS2CPacket.TYPE, FlatS2CPacket.CODEC,
 				(payload, context) -> context.enqueueWork(() -> {
-					if (FMLEnvironment.dist.isClient()) {
+					if (FMLEnvironment.getDist().isClient()) {
 						com.rogic.client.ClientMemeState.get().onFlat(payload.catId(), payload.flat());
 					}
 				}));
